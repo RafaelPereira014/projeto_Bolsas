@@ -1,0 +1,40 @@
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    position: relative; /* Needed for dropdown positioning */
+    margin: 15px 0;
+}
+
+.sidebar ul li .dropdown-menu {
+    display: none; /* Initially hide the dropdown */
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: #343a40;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 100; /* Ensure it appears above other content */
+}
+
+.sidebar ul li:hover .dropdown-menu {
+    display: block; /* Show dropdown on hover */
+}
+
+.sidebar ul li .dropdown-menu li {
+    margin: 0;
+}
+
+.sidebar ul li .dropdown-menu li a {
+    color: white;
+    padding: 5px 10px;
+    display: block; /* Makes the entire area clickable */
+    transition: background-color 0.3s ease;
+}
+
+.sidebar ul li .dropdown-menu li a:hover {
+    background-color: #007bff; /* Highlight on hover */
+}

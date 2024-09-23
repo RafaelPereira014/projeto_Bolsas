@@ -1,0 +1,71 @@
+/* Clean and minimal form styles */
+form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 450px; /* Reduced width */
+    margin: 20px auto; /* Center form */
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Reduced gap between elements */
+}
+
+form label {
+    font-weight: 500;
+    margin-bottom: 4px; /* Reduced margin */
+    color: #333;
+    font-size: 1rem; /* Smaller font */
+}
+
+form input, form select {
+    padding: 8px 10px; /* Reduced padding */
+    border: 1px solid #ddd; /* Lighter border */
+    border-radius: 6px;
+    font-size: 0.95rem; /* Slightly smaller font size */
+    transition: border-color 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+form input:focus, form select:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    outline: none;
+}
+
+form input {
+    height: 40px; /* Slightly reduced height */
+}
+
+form select {
+    height: 40px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 5.146a.5.5 0 0 1 .708 0L8 10.793l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+}
+
+button {
+    padding: 10px 15px; /* Reduced padding */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem; /* Slightly smaller font */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px); /* Slightly lighter hover effect */
+}
+
+button:active {
+    background-color: #00408d;
+    transform: translateY(0);
+}

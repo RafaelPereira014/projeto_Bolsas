@@ -1,0 +1,258 @@
+/* General styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e9eff1; /* Lighter background */
+    color: #2c3e50; /* Darker text color for better contrast */
+}
+
+/* Container and layout */
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header styles */
+header {
+    background-color: #007bff; /* Slightly darker blue for better visibility */
+    color: white;
+    padding: 15px 20px; /* Reduced padding for a sleeker look */
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem; /* Slightly smaller font for a cleaner appearance */
+    letter-spacing: 1px;
+}
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50; /* Darker, more modern sidebar */
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    top: 60px;
+    left: 0;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15); /* Softer shadow */
+    z-index: 200; /* Ensures sidebar is on top */
+    transition: background-color 0.3s ease;
+    border-right: 1px solid #34495e; /* Subtle border for depth */
+}
+
+.sidebar h2 {
+    color: #ecf0f1; /* Light color for the title */
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a {
+    display: flex; /* Flexbox for better alignment */
+    align-items: center; /* Center items vertically */
+    text-decoration: none;
+    color: #ecf0f1; /* Lighter text color */
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 12px 18px;
+    border-radius: 8px;
+    transition: color 0.3s ease, background-color 0.3s ease, padding-left 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    color: #ffffff; /* White text on hover */
+    background-color: #007bff; /* Bright blue background on hover */
+    padding-left: 25px; /* Slight hover padding effect */
+}
+
+.sidebar ul li a.active {
+    background-color: #007bff; /* Active link background */
+    color: white; /* Active link text color */
+}
+
+/* Optional: Collapse effect for small screens */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px; /* Adjust width */
+    }
+
+    .sidebar ul li a {
+        padding: 10px 15px; /* Adjust padding for smaller screens */
+    }
+}
+
+/* Content styles */
+.content {
+    margin-left: 270px;
+    padding: 100px 40px 40px;
+    flex: 1;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+.content h2 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #00aaff; /* Underline effect */
+    padding-bottom: 10px;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Ensure table respects column widths */
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    background-color: #f9f9f9;
+    word-wrap: break-word; /* Break long words */
+}
+
+th {
+    background-color: #007bff; /* Bright header */
+    color: white;
+    font-weight: bold;
+}
+
+/* Specific column widths */
+th:nth-child(1),
+td:nth-child(1) {
+    width: 5%; /* ID column */
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+    width: 15%; /* Nome column */
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+    width: 15%; /* Avaliação Curricular column */
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+    width: 15%; /* Prova de Conhecimentos column */
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+    width: 10%; /* Nota Final column */
+}
+
+th:nth-child(6),
+td:nth-child(6),
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(10),
+td:nth-child(10),
+th:nth-child(12),
+td:nth-child(12),
+th:nth-child(14),
+td:nth-child(14),
+th:nth-child(16),
+td:nth-child(16),
+th:nth-child(18),
+td:nth-child(18),
+th:nth-child(20),
+td:nth-child(20) {
+    width: 8%; /* Bolsa columns */
+}
+
+td {
+    color: #34495e; /* Softer text color */
+    border-bottom: 1px solid #eaeaea;
+}
+
+tr:hover td {
+    background-color: #d6eaf8; /* Light hover effect */
+    transition: background-color 0.3s ease;
+}
+
+/* Footer styles */
+footer {
+    background-color: #2c3e50; /* Matches the sidebar color for a unified look */
+    color: #ecf0f1;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    z-index: 100;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.15); /* Soft shadow at the top */
+}
+
+footer p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+footer a {
+    color: #007bff; /* Bright link color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #0056b3; /* Darker link color on hover */
+}
+
+/* Ensure content does not overlap footer */
+body {
+    padding-bottom: 60px; /* Reserve space for footer */
+}
+
+/* Bolsas menu styles */
+.bolsas-menu {
+    display: none; /* Hide bolsas menu by default */
+    padding-left: 0; /* Remove default padding */
+}
+
+.bolsas-menu li {
+    margin: 10px 0; /* Adjust margin for better spacing */
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-align: left;
+    width: 100%;
+}
+
+.toggle-button:hover {
+    background-color: #007bff; /* Bright blue on hover */
+    color: white; /* Change text color on hover */
+}

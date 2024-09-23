@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/selection.css') }}">
+    <title>Seleção de Candidatos</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Seleção de Candidatos</h1>
+        </header>
+
+        <div class="sidebar">
+            
+            <ul>
+                <li><a href="/mainpage">Página Principal</a></li>
+                <li><a href="/selectionpage">Seleção de Candidatos</a></li>
+                <li><a href="/consulta">Página de Dados</a></li>
+            </ul>
+            <button class="toggle-button">Bolsas</button>
+            <ul class="bolsas-menu">
+                <li><a href="/Bolsas/SaoMiguel">Bolsa de Ilha São Miguel</a></li>
+                <li><a href="/Bolsas/Terceira">Bolsa de Ilha Terceira</a></li>
+                <li><a href="/Bolsas/SantaMaria">Bolsa de Ilha Santa Maria</a></li>
+                <li><a href="/Bolsas/Faial">Bolsa de Ilha Faial</a></li>
+                <li><a href="/Bolsas/Pico">Bolsa de Ilha Pico</a></li>
+                <li><a href="/Bolsas/SaoJorge">Bolsa de Ilha São Jorge</a></li>
+                <li><a href="/Bolsas/Graciosa">Bolsa de Ilha Graciosa</a></li>
+                <li><a href="/Bolsas/Flores">Bolsa de Ilha Flores</a></li>
+                <li><a href="/Bolsas/Corvo">Bolsa de Ilha Corvo</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <h2>Formulário para Seleção</h2>
+            <form action="/submit_selection" method="POST">
+                <label for="vaga_deficiencia">Vaga com Deficiência:</label>
+                <select id="vaga_deficiencia" name="vaga_deficiencia" required>
+                    <option value="">A vaga inclui deficiência?</option>
+                    <option value="sim">Sim</option>
+                    <option value="nao">Não</option>
+                </select>
+
+                <label for="numero">Número de Candidatos Necessários:</label>
+                <input type="number" id="numero" name="numero" placeholder="Insira o número de candidatos" required>
+
+                <label for="deficiencia">Vagas:</label>
+                <input type="number" id="normal" name="normal" placeholder="">
+
+                <label for="deficiencia">Vagas com Deficiência:</label>
+                <input type="number" id="deficiencia" name="deficiencia" placeholder="">
+
+
+                <label for="ilha">Ilha (Bolsa):</label>
+                <select id="ilha" name="ilha" required>
+                    <option value="">Selecione a bolsa/ilha</option>
+                    {% for bolsa in bolsas %}
+                        <option value="{{ bolsa[0] }}">{{ bolsa[1] }}</option>  <!-- Adjust indices based on your table structure -->
+                    {% endfor %}
+                </select>
+
+                <label for="escola">Escola:</label>
+                <select id="escola" name="escola" required>
+                    <option value="">Selecione a escola</option>
+                    <!-- Options will be populated based on the selected bolsa -->
+                </select>
+
+                <label for="contrato">Tipo de Contrato:</label>
+                <select id="contrato" name="contrato" required>
+                    <option value="">Selecione o tipo de contrato</option>
+                    <option value="temporario">Temporário</option>
+                    <option value="permanente">Permanente</option>
+                </select>
+
+                
+
+                <button type="submit">Submeter</button>
+            </form>
+        </div>
+
+        <footer>
+            <p>Footer content here.</p>
+        </footer>
+    </div>
+    
+</body>
+<script>
+    document.querySelector('.toggle-button').addEventListener('click', function() {
+        const bolsasMenu = document.querySelector('.bolsas-menu');
+        bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>
+<script>
+    document.getElementById('ilha').addEventListener('change', function() {
+        const bolsaId = this.value;  // Get selected bolsa_id
+        const escolaSelect = document.getElementById('escola');
+
+        // Clear previous escola options
+        escolaSelect.innerHTML = '<option value="">Selecione a escola</option>';
+
+        if (bolsaId) {
+            // Fetch escolas associated with the selected bolsa
+            fetch(`/get_escolas/${bolsaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.escolas.forEach(escola => {
+                        const option = document.createElement('option');
+                        option.value = escola[0];  // Adjust index based on your Escola table structure
+                        option.textContent = escola[1];  // Adjust index based on your Escola table structure
+                        escolaSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching escolas:', error);
+                });
+        }
+    });
+</script>
+
+</html>
