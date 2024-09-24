@@ -6,6 +6,38 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <title>Página Principal</title>
+    <style>
+       
+        .status-livre {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-a-aguardar {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-negado {
+            color: red;
+            font-weight: bold;
+        }
+
+        .status-aceite {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .icon {
+            margin-right: 5px;
+        }
+
+        footer {
+            clear: both;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,12 +46,10 @@
         </header>
 
         <div class="sidebar">
-            
             <ul>
                 <li><a href="/mainpage">Página Principal</a></li>
                 <li><a href="/selectionpage">Seleção de Candidatos</a></li>
                 <li><a href="/consulta">Página de Dados</a></li>
-                
             </ul>
             <button class="toggle-button">Bolsas</button>
             <ul class="bolsas-menu">
@@ -37,7 +67,6 @@
                 <li><a href="/minhaconta">Minha conta</a></li>
                 <li><a href="/add_user">Adicionar candidato</a></li>
             </ul>
-
         </div>
 
         <div class="content">
@@ -59,6 +88,7 @@
                     <tr>
                         <th>User</th>
                         <th>Action</th>
+                        <th>Status</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -66,17 +96,26 @@
                     <tr>
                         <td>John Doe</td>
                         <td>Applied for Bolsa</td>
+                        <td><span class="status-livre"><i class="icon">✔️</i> Livre</span></td>
                         <td>2024-09-22</td>
                     </tr>
                     <tr>
                         <td>Jane Smith</td>
                         <td>Updated Profile</td>
+                        <td><span class="status-a-aguardar"><i class="icon">⏳</i> A Aguardar Resposta</span></td>
                         <td>2024-09-21</td>
                     </tr>
                     <tr>
                         <td>Mike Johnson</td>
                         <td>Submitted Selection</td>
+                        <td><span class="status-negado"><i class="icon">❌</i> Negado</span></td>
                         <td>2024-09-20</td>
+                    </tr>
+                    <tr>
+                        <td>Anna Brown</td>
+                        <td>Accepted Application</td>
+                        <td><span class="status-aceite"><i class="icon">✅</i> Aceite</span></td>
+                        <td>2024-09-19</td>
                     </tr>
                 </tbody>
             </table>

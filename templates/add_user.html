@@ -61,8 +61,13 @@
                     </div>
         
                     <div class="form-group">
-                        <label for="deficiencia">Deficiência:</label>
-                        <input type="text" id="deficiencia" name="deficiencia">
+                        <label for="deficiencia">Possui algum grau de deficiência:</label>
+                        <select id="tipo" name="tipo">
+                            <option value="-">-</option>
+                            <option value="nao">Sim</option>
+                            <option value="nao">Não</option>
+                            
+                        </select>
                     </div>
         
                     <div class="form-group">
@@ -83,6 +88,7 @@
                     <div class="form-group">
                         <label for="estado">Estado:</label>
                         <select id="estado" name="estado">
+                            <option value="-">-</option>
                             <option value="livre">Livre</option>
                             <option value="a aguardar resposta">A Aguardar Resposta</option>
                             <option value="negado">Negado</option>
@@ -108,8 +114,10 @@
                         <div class="contrato-section">
                             <label for="contrato_id_{{ bolsa[0] }}">Tipo de Contrato:</label>
                             <select id="contrato_id_{{ bolsa[0] }}" name="contrato_id_{{ bolsa[0] }}">
-                                <option value="indeterminado">Indeterminado</option>
-                                <option value="termo resolutivo">Termo Resolutivo</option>
+                                <option value="-">-</option>
+                                <option value="indeterminado">CTFP por tempo indeterminado</option>
+                                <option value="termo resolutivo">CTFP a termo resolutivo</option>
+                                <option value="both">CTFP por tempo indeterminado e CTFP a termo resolutivo</option>
                             </select>
                         </div>
                 

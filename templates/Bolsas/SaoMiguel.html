@@ -4,7 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/consulta.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome CSS -->
     <title>Bolsa de Ilha São Miguel</title>
+    <style>
+        /* Additional styles for status icons */
+        .status-approved {
+            color: green;
+        }
+        .status-rejected {
+            color: red;
+        }
+        .status-pending {
+            color: orange;
+        }
+        .status-icon {
+            margin-right: 5px;
+        }
+        /* Table row background colors based on status */
+        .row-approved {
+            background-color: #d4edda; /* Light green */
+        }
+        .row-rejected {
+            background-color: #f8d7da; /* Light red */
+        }
+        .row-pending {
+            background-color: #fff3cd; /* Light yellow */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,12 +40,10 @@
         </header>
 
         <div class="sidebar">
-            
             <ul>
                 <li><a href="/mainpage">Página Principal</a></li>
                 <li><a href="/selectionpage">Seleção de Candidatos</a></li>
                 <li><a href="/consulta">Página de Dados</a></li>
-                
             </ul>
             <button class="toggle-button">Bolsas</button>
             <ul class="bolsas-menu">
@@ -36,7 +61,6 @@
                 <li><a href="/minhaconta">Minha conta</a></li>
                 <li><a href="/add_user">Adicionar candidato</a></li>
             </ul>
-
         </div>
 
         <div class="content">
@@ -51,13 +75,11 @@
                         <th>Nota Final</th>
                         <th>Bolsa de Ilha São Miguel</th>
                         <th>CTFP</th>
-                        
-                        
-                        <!-- Add more columns for other bolsas as needed -->
+                        <th>Status</th> <!-- Added Status column -->
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr class="row-approved"> <!-- Approved status row -->
                         <td>1</td>
                         <td>Nome 1</td>
                         <td>Avaliação 1</td>
@@ -65,10 +87,13 @@
                         <td>Nota 1</td>
                         <td>Sim</td>
                         <td>CTFP 1</td>
-                        
-                        
+                        <td>
+                            <span class="status-approved">
+                                <i class="fas fa-check-circle status-icon"></i>Aprovado
+                            </span>
+                        </td>
                     </tr>
-                    <tr>
+                    <tr class="row-rejected"> <!-- Rejected status row -->
                         <td>2</td>
                         <td>Nome 2</td>
                         <td>Avaliação 2</td>
@@ -76,7 +101,25 @@
                         <td>Nota 2</td>
                         <td>Não</td>
                         <td>CTFP 3</td>
-                        
+                        <td>
+                            <span class="status-rejected">
+                                <i class="fas fa-times-circle status-icon"></i>Rejeitado
+                            </span>
+                        </td>
+                    </tr>
+                    <tr class="row-pending"> <!-- Pending status row -->
+                        <td>3</td>
+                        <td>Nome 3</td>
+                        <td>Avaliação 3</td>
+                        <td>Prova 3</td>
+                        <td>Nota 3</td>
+                        <td>Sim</td>
+                        <td>CTFP 4</td>
+                        <td>
+                            <span class="status-pending">
+                                <i class="fas fa-hourglass-half status-icon"></i>Pendente
+                            </span>
+                        </td>
                     </tr>
                 </tbody>
             </table>

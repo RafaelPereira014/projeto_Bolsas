@@ -6,20 +6,68 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/consulta.css') }}">
     <title>Metadata page</title>
+    <style>
+        
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .status-livre {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-a-aguardar {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-negado {
+            color: red;
+            font-weight: bold;
+        }
+
+        .status-aceite {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .icon {
+            margin-right: 5px;
+        }
+
+        footer {
+            clear: both;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Metadata page</h1>
+            <h1>Metadata Page</h1>
         </header>
 
         <div class="sidebar">
-            
             <ul>
                 <li><a href="/mainpage">Página Principal</a></li>
                 <li><a href="/selectionpage">Seleção de Candidatos</a></li>
                 <li><a href="/consulta">Página de Dados</a></li>
-                
             </ul>
             <button class="toggle-button">Bolsas</button>
             <ul class="bolsas-menu">
@@ -37,7 +85,6 @@
                 <li><a href="/minhaconta">Minha conta</a></li>
                 <li><a href="/add_user">Adicionar candidato</a></li>
             </ul>
-
         </div>
 
         <div class="content">
@@ -68,7 +115,7 @@
                         <th>CTFP</th>
                         <th>Bolsa de Ilha Corvo</th>
                         <th>CTFP</th>
-                        <!-- Add more columns for other bolsas as needed -->
+                        <th>Status</th> <!-- Added Status Column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -96,6 +143,9 @@
                         <td>CTFP 2</td>
                         <td>Não</td>
                         <td>CTFP 2</td>
+                        <td>
+                            <span class="status-livre"><i class="icon">✔️</i> Livre</span>
+                        </td> <!-- Random Status -->
                     </tr>
                     <tr>
                         <td>2</td>
@@ -121,7 +171,65 @@
                         <td>CTFP 2</td>
                         <td>Não</td>
                         <td>CTFP 2</td>
-                        
+                        <td>
+                            <span class="status-a-aguardar"><i class="icon">⏳</i> A Aguardar Resposta</span>
+                        </td> <!-- Random Status -->
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Nome 3</td>
+                        <td>Avaliação 3</td>
+                        <td>Prova 3</td>
+                        <td>Nota 3</td>
+                        <td>Sim</td>
+                        <td>CTFP 5</td>
+                        <td>Sim</td>
+                        <td>CTFP 6</td>
+                        <td>Sim</td>
+                        <td>CTFP 7</td>
+                        <td>Sim</td>
+                        <td>CTFP 8</td>
+                        <td>Sim</td>
+                        <td>CTFP 9</td>
+                        <td>Sim</td>
+                        <td>CTFP 10</td>
+                        <td>Sim</td>
+                        <td>CTFP 11</td>
+                        <td>Sim</td>
+                        <td>CTFP 12</td>
+                        <td>Sim</td>
+                        <td>CTFP 13</td>
+                        <td>
+                            <span class="status-negado"><i class="icon">❌</i> Negado</span>
+                        </td> <!-- Random Status -->
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Nome 4</td>
+                        <td>Avaliação 4</td>
+                        <td>Prova 4</td>
+                        <td>Nota 4</td>
+                        <td>Não</td>
+                        <td>CTFP 14</td>
+                        <td>Sim</td>
+                        <td>CTFP 15</td>
+                        <td>Não</td>
+                        <td>CTFP 16</td>
+                        <td>Sim</td>
+                        <td>CTFP 17</td>
+                        <td>Sim</td>
+                        <td>CTFP 18</td>
+                        <td>Não</td>
+                        <td>CTFP 19</td>
+                        <td>Sim</td>
+                        <td>CTFP 20</td>
+                        <td>Sim</td>
+                        <td>CTFP 21</td>
+                        <td>Não</td>
+                        <td>CTFP 22</td>
+                        <td>
+                            <span class="status-aceite"><i class="icon">✅</i> Aceite</span>
+                        </td> <!-- Random Status -->
                     </tr>
                 </tbody>
             </table>
