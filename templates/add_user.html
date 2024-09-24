@@ -119,7 +119,7 @@
                                 {% for escola in escolas_per_bolsa[bolsa[0]] %}
                                 <div class="escola-item">
                                     <label for="escola_id_{{ bolsa[0] }}_{{ escola[0] }}">{{ escola[1] }}</label>
-                                    <input type="checkbox" id="escola_id_{{ bolsa[0] }}_{{ escola[0] }}" 
+                                    <input type="checkbox" class="escola-checkbox" id="escola_id_{{ bolsa[0] }}_{{ escola[0] }}" 
                                            name="escola_id_{{ bolsa[0] }}[]" 
                                            value="{{ escola[0] }}">
                                     <span class="order-display" id="order_id_{{ bolsa[0] }}_{{ escola[0] }}">Ordem: N/A</span>
@@ -141,15 +141,16 @@
 </body>
 
 <script>
-    let arrayChecks = [];
+    // Initialize an array to hold the checked school checkbox IDs
+    let orderedChecks = [];
 
     function updateOrder() {
         // Reset all order displays
         const orderDisplays = document.querySelectorAll('.order-display');
         orderDisplays.forEach(display => display.innerText = "Ordem: N/A");
 
-        // Update the order display for checked checkboxes
-        arrayChecks.forEach((id, index) => {
+        // Update the order display for checked school checkboxes
+        orderedChecks.forEach((id, index) => {
             const orderDisplay = document.getElementById('order_id_' + id);
             if (orderDisplay) {
                 orderDisplay.innerText = "Ordem: " + (index + 1);
@@ -157,19 +158,29 @@
         });
     }
 
-    const checks = document.querySelectorAll('input[type="checkbox"]');
+    // Select all school checkboxes
+    const schoolCheckboxes = document.querySelectorAll('.escola-checkbox');
 
-    checks.forEach(check => {
+    // Add event listeners to each school checkbox
+    schoolCheckboxes.forEach(check => {
         check.addEventListener('change', function () {
-            const id = this.id.split('_')[2]; // Get the ID of the escola
+            // Get the id for ordering (both bolsa and escola IDs)
+            const bolsaId = this.id.split('_')[2]; // Extract the bolsa ID
+            const escolaId = this.id.split('_')[3]; // Extract the escola ID
+            
+            // Create a combined ID for ordering
+            const id = bolsaId + '_' + escolaId;
+
+            // Update orderedChecks based on checkbox state
             if (this.checked) {
-                arrayChecks.push(id);
+                orderedChecks.push(id);
             } else {
-                const index = arrayChecks.indexOf(id);
+                const index = orderedChecks.indexOf(id);
                 if (index > -1) {
-                    arrayChecks.splice(index, 1);
+                    orderedChecks.splice(index, 1);
                 }
             }
+            // Update order display
             updateOrder();
         });
     });
