@@ -1,4 +1,5 @@
-from flask import Flask, flash, request, jsonify, render_template
+from django import db
+from flask import Flask, flash, redirect, request, jsonify, render_template, url_for
 import mysql.connector
 from mysql.connector import Error
 from db_operations.selection.db_selection import *
@@ -12,8 +13,8 @@ def create_connection():
     try:
         connection = mysql.connector.connect(
             host='localhost',
-            user='username',
-            password='Password%100',
+            user='root',
+            password='passroot',
             database='dbname'
         )
         if connection.is_connected():
@@ -106,6 +107,80 @@ def minhaconta():
         "email": "user@example.com"
     }
     return render_template('minhaconta.html', user=user)
+
+
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        contacto = request.form['contacto']
+        deficiencia = request.form['deficiencia']
+        avaliacao_curricular = request.form['avaliacao_curricular']
+        prova_de_conhecimentos = request.form['prova_de_conhecimentos']
+        nota_final = request.form['nota_final']
+        estado = request.form['estado']
+        observacoes = request.form['observacoes']
+        bolsa_ids = request.form.getlist('bolsa_id[]')
+        tipo_contratos = request.form.getlist('tipo_contrato[]')
+        escola_ids = request.form.getlist('escola_id[]')
+
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        # Insert into Users table
+        user_query = """
+        INSERT INTO Users (nome, contacto, deficiencia, avaliacao_curricular, 
+                           prova_de_conhecimentos, nota_final, estado, observacoes)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(user_query, (nome, contacto, deficiencia, avaliacao_curricular, 
+                                     prova_de_conhecimentos, nota_final, estado, observacoes))
+        user_id = cursor.lastrowid  # Get the last inserted user ID
+
+        # Insert into Bolsas table
+        for bolsa_id, tipo_contrato in zip(bolsa_ids, tipo_contratos):
+            bolsa_query = """
+            INSERT INTO Bolsa (user_id, Bolsa_id, tipo_contrato)
+            VALUES (%s, %s, %s)
+            """
+            cursor.execute(bolsa_query, (user_id, bolsa_id, tipo_contrato))
+
+        # Insert into Escolas table
+        for escola_id in escola_ids:
+            escola_query = """
+            INSERT INTO Escola (user_id, escola_id)
+            VALUES (%s, %s)
+            """
+            cursor.execute(escola_query, (user_id, escola_id))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return redirect(url_for('mainpage'))  # Change to your desired redirect
+
+    # For GET request, render the form
+    connection = create_connection()
+    cursor = connection.cursor()
+    
+    # Fetch bolsas and escolas from the database
+    cursor.execute("SELECT id, nome FROM Bolsa")
+    bolsas = cursor.fetchall()
+    
+    escolas_per_bolsa = {}
+    for bolsa in bolsas:
+        bolsa_id = bolsa[0]
+        cursor.execute("""
+            SELECT e.id, e.nome 
+            FROM Escola e
+            JOIN bolsa_escola be ON e.id = be.escola_id
+            WHERE be.bolsa_id = %s
+        """, (bolsa_id,))
+        escolas_per_bolsa[bolsa_id] = cursor.fetchall()  # Store escolas for this bolsa
+    
+    cursor.close()
+    connection.close()
+    
+    return render_template('add_user.html', bolsas=bolsas, escolas_per_bolsa=escolas_per_bolsa)
 
 # Route to receive and store data
 @app.route('/receive_data', methods=['POST'])
