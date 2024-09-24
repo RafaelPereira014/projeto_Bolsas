@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, flash, request, jsonify, render_template
 import mysql.connector
 from mysql.connector import Error
 from db_operations.selection.db_selection import *
@@ -84,6 +84,28 @@ def bolsa_flores():
 @app.route('/Bolsas/Corvo')
 def bolsa_corvo():
     return render_template('/Bolsas/Corvo.html')  # Adjust the template name accordingly
+
+@app.route('/minhaconta', methods=['GET', 'POST'])
+def minhaconta():
+    if request.method == 'POST':
+        # Handle account update logic here
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        
+        # Add logic to update user account in the database
+        if password == confirm_password:
+            # Update the database
+            pass
+        else:
+            flash("Passwords do not match!")
+    
+    user = {
+        "username": "current_user",  # Replace with actual user data
+        "email": "user@example.com"
+    }
+    return render_template('minhaconta.html', user=user)
 
 # Route to receive and store data
 @app.route('/receive_data', methods=['POST'])

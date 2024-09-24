@@ -19,6 +19,7 @@
                 <li><a href="/mainpage">Página Principal</a></li>
                 <li><a href="/selectionpage">Seleção de Candidatos</a></li>
                 <li><a href="/consulta">Página de Dados</a></li>
+                
             </ul>
             <button class="toggle-button">Bolsas</button>
             <ul class="bolsas-menu">
@@ -32,28 +33,33 @@
                 <li><a href="/Bolsas/Flores">Bolsa de Ilha Flores</a></li>
                 <li><a href="/Bolsas/Corvo">Bolsa de Ilha Corvo</a></li>
             </ul>
+            <ul>
+                <li><a href="/minhaconta">Minha conta</a></li>
+            </ul>
+
         </div>
 
         <div class="content">
             <h2>Formulário para Seleção</h2>
             <form action="/submit_selection" method="POST">
                 <label for="vaga_deficiencia">Vaga com Deficiência:</label>
-                <select id="vaga_deficiencia" name="vaga_deficiencia" required>
+                <select id="vaga_deficiencia" name="vaga_deficiencia" required onchange="handleDeficienciaChange()">
                     <option value="">A vaga inclui deficiência?</option>
                     <option value="sim">Sim</option>
                     <option value="nao">Não</option>
                 </select>
-
+        
                 <label for="numero">Número de Candidatos Necessários:</label>
-                <input type="number" id="numero" name="numero" placeholder="Insira o número de candidatos" required>
-
-                <label for="deficiencia">Vagas:</label>
-                <input type="number" id="normal" name="normal" placeholder="">
-
-                <label for="deficiencia">Vagas com Deficiência:</label>
-                <input type="number" id="deficiencia" name="deficiencia" placeholder="">
-
-
+                <input type="number" id="numero" name="numero" placeholder="Insira o número de candidatos" required oninput="calculateVagas()">
+        
+                <div id="vagaInputs">
+                    <label for="normal">Vagas:</label>
+                    <input type="number" id="normal" name="normal" placeholder="" readonly>
+        
+                    <label for="deficiencia">Vagas com Deficiência:</label>
+                    <input type="number" id="deficiencia" name="deficiencia" placeholder="" readonly>
+                </div>
+        
                 <label for="ilha">Ilha (Bolsa):</label>
                 <select id="ilha" name="ilha" required>
                     <option value="">Selecione a bolsa/ilha</option>
@@ -61,22 +67,20 @@
                         <option value="{{ bolsa[0] }}">{{ bolsa[1] }}</option>  <!-- Adjust indices based on your table structure -->
                     {% endfor %}
                 </select>
-
+        
                 <label for="escola">Escola:</label>
                 <select id="escola" name="escola" required>
                     <option value="">Selecione a escola</option>
                     <!-- Options will be populated based on the selected bolsa -->
                 </select>
-
+        
                 <label for="contrato">Tipo de Contrato:</label>
                 <select id="contrato" name="contrato" required>
                     <option value="">Selecione o tipo de contrato</option>
                     <option value="temporario">Temporário</option>
                     <option value="permanente">Permanente</option>
                 </select>
-
-                
-
+        
                 <button type="submit">Submeter</button>
             </form>
         </div>
@@ -118,6 +122,52 @@
                 });
         }
     });
+</script>
+
+<script>
+    function handleDeficienciaChange() {
+        const vagaDeficiencia = document.getElementById("vaga_deficiencia").value;
+        const vagaInputs = document.getElementById("vagaInputs");
+
+        if (vagaDeficiencia === "sim") {
+            vagaInputs.style.display = "none"; // Hide vaga inputs
+            document.getElementById("normal").value = ""; // Clear value
+            document.getElementById("deficiencia").value = ""; // Clear value
+        } else {
+            vagaInputs.style.display = "block"; // Show vaga inputs
+            calculateVagas(); // Update values based on the current number of candidates
+        }
+    }
+
+    function calculateVagas() {
+        const numero = parseInt(document.getElementById("numero").value) || 0;
+        const vagasInput = document.getElementById("normal");
+        const deficienciaInput = document.getElementById("deficiencia");
+    
+        // Reset both inputs initially
+        vagasInput.value = '';
+        deficienciaInput.value = '';
+        deficienciaInput.style.display = "none"; // Hide the deficiencia input
+    
+        if (numero < 3) {
+            // If less than 3, show only vagas input
+            vagasInput.value = numero; // Set vagas to the same value as numero
+            vagasInput.style.display = "block"; // Ensure it is visible
+        } else if (numero >= 3 && numero <= 10) {
+            // For 3 to 10, assign values for normal and deficiencia
+            vagasInput.value = numero - 1; // Assign 1 to deficiencia
+            deficienciaInput.value = 1; // Always 1 for this range
+            deficienciaInput.style.display = "block"; // Ensure deficiencia is visible
+        } else if (numero > 10) {
+            // For more than 10 candidates
+            deficienciaInput.value = Math.floor(numero * 0.2); // 20% of the number of candidates
+            vagasInput.value = numero - deficienciaInput.value; // The rest to vagas
+            deficienciaInput.style.display = "block"; // Ensure deficiencia is visible
+        }
+    }
+    
+    // Add an event listener to the number input to trigger calculation
+    document.getElementById("numero").addEventListener("input", calculateVagas);
 </script>
 
 </html>

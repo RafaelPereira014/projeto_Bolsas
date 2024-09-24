@@ -1,0 +1,93 @@
+/* Content container styling */
+.content {
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    transition: box-shadow 0.3s ease;
+}
+
+.content:hover {
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+}
+
+.content h2 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+form label {
+    font-size: 1.2rem;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form input[type="email"]:focus,
+form input[type="password"]:focus {
+    border: 1px solid #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    outline: none;
+}
+
+form button {
+    padding: 12px 25px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+form button:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+}
+
+form button:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .content {
+        padding: 25px;
+    }
+
+    form {
+        gap: 15px;
+    }
+
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="password"] {
+        padding: 10px;
+    }
+    
+    form button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}

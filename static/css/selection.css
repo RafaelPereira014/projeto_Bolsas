@@ -1,9 +1,15 @@
-/* Clean and minimal form styles */
+/* General Styles */
+body {
+    font-family: Arial, sans-serif; /* Consistent font for the entire page */
+    background-color: #f0f0f0; /* Light background for contrast */
+}
+
+/* Form Container */
 form {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 450px; /* Reduced width */
     margin: 20px auto; /* Center form */
@@ -12,6 +18,7 @@ form {
     gap: 12px; /* Reduced gap between elements */
 }
 
+/* Labels */
 form label {
     font-weight: 500;
     margin-bottom: 4px; /* Reduced margin */
@@ -19,6 +26,7 @@ form label {
     font-size: 1rem; /* Smaller font */
 }
 
+/* Inputs and Selects */
 form input, form select {
     padding: 8px 10px; /* Reduced padding */
     border: 1px solid #ddd; /* Lighter border */
@@ -34,12 +42,13 @@ form input:focus, form select:focus {
     outline: none;
 }
 
-form input {
-    height: 40px; /* Slightly reduced height */
+/* Input Field Heights */
+form input, form select {
+    height: 40px; /* Consistent height for inputs */
 }
 
+/* Custom Select Styles */
 form select {
-    height: 40px;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -49,6 +58,7 @@ form select {
     background-size: 1rem;
 }
 
+/* Button Styles */
 button {
     padding: 10px 15px; /* Reduced padding */
     background-color: #007bff;
@@ -68,4 +78,15 @@ button:hover {
 button:active {
     background-color: #00408d;
     transform: translateY(0);
+}
+
+/* Media Query for Responsive Design */
+@media (max-width: 600px) {
+    form {
+        padding: 15px; /* Less padding on smaller screens */
+    }
+    
+    button {
+        width: 100%; /* Full-width buttons on small screens */
+    }
 }

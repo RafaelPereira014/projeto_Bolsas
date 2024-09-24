@@ -38,3 +38,91 @@
 .sidebar ul li .dropdown-menu li a:hover {
     background-color: #007bff; /* Highlight on hover */
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Ensure table respects column widths */
+}
+
+th, td {
+    padding: 5px;
+    text-align: left;
+    background-color: #f9f9f9;
+    word-wrap: break-word; /* Break long words */
+    font-size: 12px;
+}
+
+th {
+    background-color: #007bff; /* Bright header */
+    color: white;
+    font-weight: bold;
+}
+th {
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Display ellipsis for overflow text */
+}
+td {
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Display ellipsis for overflow text */
+    white-space: nowrap; /* Prevent line breaks */
+}
+
+/* Specific column widths */
+th:nth-child(1),
+td:nth-child(1) {
+    width: 5%; /* ID column */
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+    width: 15%; /* Nome column */
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+    width: 15%; /* Avaliação Curricular column */
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+    width: 15%; /* Prova de Conhecimentos column */
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+    width: 10%; /* Nota Final column */
+}
+
+th:nth-child(6),
+td:nth-child(6),
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(10),
+td:nth-child(10),
+th:nth-child(12),
+td:nth-child(12),
+th:nth-child(14),
+td:nth-child(14),
+th:nth-child(16),
+td:nth-child(16),
+th:nth-child(18),
+td:nth-child(18),
+th:nth-child(20),
+td:nth-child(20) {
+    width: 8%; /* Bolsa columns */
+}
+
+td {
+    color: #34495e; /* Softer text color */
+    border-bottom: 1px solid #eaeaea;
+}
+
+tr:hover td {
+    background-color: #d6eaf8; /* Light hover effect */
+    transition: background-color 0.3s ease;
+}
