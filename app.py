@@ -2,6 +2,7 @@ from django import db
 from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from config import db_config
 import mysql.connector
 from mysql.connector import Error
 from db_operations.selection.db_selection import *
@@ -18,15 +19,15 @@ def is_logged_in():
     # Check if the user_id exists in the session
     return 'user_id' in session
 
-# MySQL connection details
 def create_connection():
     connection = None
     try:
+        # Use the config values from the db_config
         connection = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='passroot',
-            database='dbname'
+            host=db_config['host'],
+            user=db_config['user'],
+            password=db_config['password'],
+            database=db_config['db']
         )
         if connection.is_connected():
             print("Connection to MySQL DB successful")
