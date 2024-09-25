@@ -403,7 +403,7 @@ def add_user():
         cursor.execute("""
             SELECT e.id, e.nome 
             FROM Escola e
-            JOIN bolsa_escola be ON e.id = be.escola_id
+            JOIN Bolsa_Escola be ON e.id = be.escola_id
             WHERE be.bolsa_id = %s
         """, (bolsa_id,))
         escolas_per_bolsa[bolsa_id] = cursor.fetchall()  # Store escolas for this bolsa
