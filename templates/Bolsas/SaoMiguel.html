@@ -31,6 +31,41 @@
         .row-pending {
             background-color: #fff3cd; /* Light yellow */
         }
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -79,48 +114,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="row-approved"> <!-- Approved status row -->
-                        <td>1</td>
-                        <td>Nome 1</td>
-                        <td>Avaliação 1</td>
-                        <td>Prova 1</td>
-                        <td>Nota 1</td>
-                        <td>Sim</td>
-                        <td>CTFP 1</td>
+                    {% for user in user_info %}
+                    <tr>
+                        <td>{{ loop.index }}</td> <!-- Use loop.index for row numbering -->
+                        <td>{{ user.nome }}</td>
+                        <td>{{ user.avaliacao_curricular }}</td>
+                        <td>{{ user.prova_de_conhecimentos }}</td>
+                        <td>{{ user.nota_final }}</td>
                         <td>
-                            <span class="status-approved">
-                                <i class="fas fa-check-circle status-icon"></i>Aprovado
-                            </span>
+                            <button onclick="showEscolasPopup({{ user.id }})">Ver Escolas</button>
                         </td>
+                        
+                        
                     </tr>
-                    <tr class="row-rejected"> <!-- Rejected status row -->
-                        <td>2</td>
-                        <td>Nome 2</td>
-                        <td>Avaliação 2</td>
-                        <td>Prova 2</td>
-                        <td>Nota 2</td>
-                        <td>Não</td>
-                        <td>CTFP 3</td>
-                        <td>
-                            <span class="status-rejected">
-                                <i class="fas fa-times-circle status-icon"></i>Rejeitado
-                            </span>
-                        </td>
-                    </tr>
-                    <tr class="row-pending"> <!-- Pending status row -->
-                        <td>3</td>
-                        <td>Nome 3</td>
-                        <td>Avaliação 3</td>
-                        <td>Prova 3</td>
-                        <td>Nota 3</td>
-                        <td>Sim</td>
-                        <td>CTFP 4</td>
-                        <td>
-                            <span class="status-pending">
-                                <i class="fas fa-hourglass-half status-icon"></i>Pendente
-                            </span>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -128,11 +135,46 @@
             <p>Footer content here.</p>
         </footer>
     </div>
+    
 </body>
+<!-- Popup Modal -->
+<div id="escolasModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Escolas e Prioridades</h2>
+        <div id="escolasList"></div>
+    </div>
+</div>
 <script>
     document.querySelector('.toggle-button').addEventListener('click', function() {
         const bolsasMenu = document.querySelector('.bolsas-menu');
         bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
     });
+</script>
+<script>
+    function showEscolasPopup(userId) {
+        const escolasList = document.getElementById('escolasList');
+        escolasList.innerHTML = ""; // Clear previous content
+
+        // Fetch escolas for the selected user (you may want to use AJAX for real-time data)
+        fetch(`/get_escolas/${userId}`) // Assume you create a route for this
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length) {
+                    data.forEach(escola => {
+                        const escolaInfo = document.createElement('div');
+                        escolaInfo.textContent = `Escola ID: ${escola.escola_id}, Prioridade: ${escola.escola_priority_id}`;
+                        escolasList.appendChild(escolaInfo);
+                    });
+                } else {
+                    escolasList.textContent = "Nenhuma escola encontrada.";
+                }
+                document.getElementById('escolasModal').style.display = "block"; // Show modal
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('escolasModal').style.display = "none"; // Hide modal
+    }
 </script>
 </html>

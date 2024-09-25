@@ -3,6 +3,9 @@ from flask import Flask, flash, redirect, request, jsonify, render_template, url
 import mysql.connector
 from mysql.connector import Error
 from db_operations.selection.db_selection import *
+from db_operations.consulting.db_consulting import *
+from db_operations.user.db_user import *
+from db_operations.admin.admin import *
 
 
 app = Flask(__name__)
@@ -46,45 +49,161 @@ def get_escolas(bolsa_id):
 
 @app.route('/consulta')
 def metadatapage():
-    return render_template('consulta.html')
+    scores = get_all_user_scores()  # Retrieve user scores
+    return render_template('consulta.html', scores=scores)
 
+@app.route('/get_escolas/<int:user_id>')
+def fetch_escolas(user_id):
+    bolsa_id = 1  # Or fetch this dynamically based on context
+    escolas = get_escolas_by_bolsa(user_id, bolsa_id)
+    return jsonify(escolas)  # Return JSON response
 
 
 @app.route('/Bolsas/SaoMiguel')
 def bolsa_sao_miguel():
-    return render_template('/Bolsas/SaoMiguel.html')  # Adjust the template name accordingly
+    bolsa_id = 1
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    #print(escolas_bolsa)
+    return render_template('/Bolsas/SaoMiguel.html', user_info=user_info, escolas_bolsa=escolas_bolsa)
 
 @app.route('/Bolsas/Terceira')
 def bolsa_terceira():
-    return render_template('/Bolsas/Terceira.html')  # Adjust the template name accordingly
+    bolsa_id = 2
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    #print(escolas_bolsa)
+    return render_template('/Bolsas/Terceira.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/SantaMaria')
 def bolsa_santa_maria():
-    return render_template('/Bolsas/SantaMaria.html')  # Adjust the template name accordingly
+    bolsa_id = 3
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/SantaMaria.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Faial')
 def bolsa_faial():
-    return render_template('/Bolsas/Faial.html')  # Adjust the template name accordingly
+    bolsa_id = 4
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/Faial.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Pico')
 def bolsa_pico():
-    return render_template('/Bolsas/Pico.html')  # Adjust the template name accordingly
+    bolsa_id = 5
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/Pico.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/SaoJorge')
 def bolsa_sao_jorge():
-    return render_template('/Bolsas/SaoJorge.html')  # Adjust the template name accordingly
+    bolsa_id = 6
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/SaoJorge.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Graciosa')
 def bolsa_graciosa():
-    return render_template('/Bolsas/Graciosa.html')  # Adjust the template name accordingly
+    bolsa_id = 7
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/Graciosa.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Flores')
 def bolsa_flores():
-    return render_template('/Bolsas/Flores.html')  # Adjust the template name accordingly
+    bolsa_id = 8
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/Flores.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Corvo')
 def bolsa_corvo():
-    return render_template('/Bolsas/Corvo.html')  # Adjust the template name accordingly
+    bolsa_id = 9
+    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+
+    user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
+    
+    
+
+    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    return render_template('/Bolsas/Corvo.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
 @app.route('/minhaconta', methods=['GET', 'POST'])
 def minhaconta():
@@ -112,51 +231,67 @@ def minhaconta():
 @app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
-        nome = request.form['nome']
-        contacto = request.form['contacto']
-        deficiencia = request.form['deficiencia']
-        avaliacao_curricular = request.form['avaliacao_curricular']
-        prova_de_conhecimentos = request.form['prova_de_conhecimentos']
-        nota_final = request.form['nota_final']
-        estado = request.form['estado']
-        observacoes = request.form['observacoes']
-        bolsa_ids = request.form.getlist('bolsa_id[]')
-        tipo_contratos = request.form.getlist('tipo_contrato[]')
-        escola_ids = request.form.getlist('escola_id[]')
+        try:
+            # Fetch the form data
+            nome = request.form['nome']
+            contacto = request.form['contacto']
+            deficiencia = request.form['deficiencia']
+            avaliacao_curricular = request.form['avaliacao_curricular']
+            prova_de_conhecimentos = request.form['prova_de_conhecimentos']
+            nota_final = request.form['nota_final']
+            estado = request.form['estado']
+            observacoes = request.form['observacoes']
+            bolsa_ids = request.form.getlist('bolsa_id[]')
+            contrato_ids = [request.form.get(f'contrato_id_{bolsa_id}') for bolsa_id in bolsa_ids]
 
-        connection = create_connection()
-        cursor = connection.cursor()
+            # Handle the escolas and their priorities
+            escolas_per_bolsa = []
+            for bolsa_id in bolsa_ids:
+                escola_ids = request.form.getlist(f'escola_id_{bolsa_id}[]')  # Schools selected for this bolsa
+                for escola_id in escola_ids:
+                    escola_priority_id = request.form.get(f'order_id_{bolsa_id}_{escola_id}')  # Get priority/order
+                    escolas_per_bolsa.append((bolsa_id, escola_id, escola_priority_id))
 
-        # Insert into Users table
-        user_query = """
-        INSERT INTO Users (nome, contacto, deficiencia, avaliacao_curricular, 
-                           prova_de_conhecimentos, nota_final, estado, observacoes)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(user_query, (nome, contacto, deficiencia, avaliacao_curricular, 
-                                     prova_de_conhecimentos, nota_final, estado, observacoes))
-        user_id = cursor.lastrowid  # Get the last inserted user ID
+            connection = create_connection()
+            cursor = connection.cursor()
 
-        # Insert into Bolsas table
-        for bolsa_id, tipo_contrato in zip(bolsa_ids, tipo_contratos):
-            bolsa_query = """
-            INSERT INTO Bolsa (user_id, Bolsa_id, tipo_contrato)
-            VALUES (%s, %s, %s)
+            # Insert into Users table
+            user_query = """
+            INSERT INTO Users (nome, contacto, deficiencia, avaliacao_curricular, 
+                               prova_de_conhecimentos, nota_final, estado, observacoes)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(bolsa_query, (user_id, bolsa_id, tipo_contrato))
+            cursor.execute(user_query, (nome, contacto, deficiencia, avaliacao_curricular, 
+                                         prova_de_conhecimentos, nota_final, estado, observacoes))
+            user_id = cursor.lastrowid  # Get the last inserted user ID
 
-        # Insert into Escolas table
-        for escola_id in escola_ids:
-            escola_query = """
-            INSERT INTO Escola (user_id, escola_id)
-            VALUES (%s, %s)
-            """
-            cursor.execute(escola_query, (user_id, escola_id))
+            # Insert into userbolsas table
+            for bolsa_id, contrato_id in zip(bolsa_ids, contrato_ids):
+                bolsa_query = """
+                INSERT INTO userbolsas (user_id, Bolsa_id, contrato_id)
+                VALUES (%s, %s, %s)
+                """
+                cursor.execute(bolsa_query, (user_id, bolsa_id, contrato_id))
 
-        connection.commit()
-        cursor.close()
-        connection.close()
-        return redirect(url_for('mainpage'))  # Change to your desired redirect
+            # Insert into user_escola table
+            for bolsa_id, escola_id, escola_priority_id in escolas_per_bolsa:
+                escola_query = """
+                INSERT INTO user_escola (user_id, escola_id, escola_priority_id)
+                VALUES (%s, %s, %s)
+                """
+                cursor.execute(escola_query, (user_id, escola_id, escola_priority_id))
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+            # After successfully processing POST, redirect to another page
+            return redirect(url_for('mainpage'))  # Adjust redirect as needed
+
+        except Exception as e:
+            # Handle any errors, log them, and return an error message
+            print(f"Error: {e}")
+            return "An error occurred during form submission.", 500
 
     # For GET request, render the form
     connection = create_connection()
@@ -179,7 +314,8 @@ def add_user():
     
     cursor.close()
     connection.close()
-    
+
+    # Render the form template on GET request
     return render_template('add_user.html', bolsas=bolsas, escolas_per_bolsa=escolas_per_bolsa)
 
 # Route to receive and store data

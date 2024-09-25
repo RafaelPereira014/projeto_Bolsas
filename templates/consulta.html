@@ -7,8 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/consulta.css') }}">
     <title>Metadata page</title>
     <style>
-        
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -24,26 +22,6 @@
         th {
             background-color: #007bff;
             color: white;
-        }
-
-        .status-livre {
-            color: green;
-            font-weight: bold;
-        }
-
-        .status-a-aguardar {
-            color: orange;
-            font-weight: bold;
-        }
-
-        .status-negado {
-            color: red;
-            font-weight: bold;
-        }
-
-        .status-aceite {
-            color: blue;
-            font-weight: bold;
         }
 
         .icon {
@@ -94,143 +72,42 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
-                        <th>Avaliação Curricular</th>
-                        <th>Prova de Conhecimentos</th>
                         <th>Nota Final</th>
                         <th>Bolsa de Ilha de São Miguel</th>
-                        <th>CTFP</th>
+                       
                         <th>Bolsa de Ilha Terceira</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha Santa Maria</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha Faial</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha Pico</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha S.Jorge</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha Graciosa</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha Flores</th>
-                        <th>CTFP</th>
                         <th>Bolsa de Ilha Corvo</th>
-                        <th>CTFP</th>
                         <th>Status</th> <!-- Added Status Column -->
                     </tr>
                 </thead>
                 <tbody>
+                    {% for score in scores %}
                     <tr>
-                        <td>1</td>
-                        <td>Nome 1</td>
-                        <td>Avaliação 1</td>
-                        <td>Prova 1</td>
-                        <td>Nota 1</td>
-                        <td>Sim</td>
-                        <td>CTFP 1</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ score.nome }}</td>
+                        <td>{{ score.nota_final }}</td>
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->                       
+                        <td>Não</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
+                        <td>Sim</td> <!-- Hardcoded Data for Bolsa -->
                         <td>
+                            <!-- You can modify this based on your logic for status -->
                             <span class="status-livre"><i class="icon">✔️</i> Livre</span>
-                        </td> <!-- Random Status -->
+                        </td>
                     </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Nome 2</td>
-                        <td>Avaliação 2</td>
-                        <td>Prova 2</td>
-                        <td>Nota 2</td>
-                        <td>Não</td>
-                        <td>CTFP 3</td>
-                        <td>Sim</td>
-                        <td>CTFP 4</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>Não</td>
-                        <td>CTFP 2</td>
-                        <td>
-                            <span class="status-a-aguardar"><i class="icon">⏳</i> A Aguardar Resposta</span>
-                        </td> <!-- Random Status -->
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Nome 3</td>
-                        <td>Avaliação 3</td>
-                        <td>Prova 3</td>
-                        <td>Nota 3</td>
-                        <td>Sim</td>
-                        <td>CTFP 5</td>
-                        <td>Sim</td>
-                        <td>CTFP 6</td>
-                        <td>Sim</td>
-                        <td>CTFP 7</td>
-                        <td>Sim</td>
-                        <td>CTFP 8</td>
-                        <td>Sim</td>
-                        <td>CTFP 9</td>
-                        <td>Sim</td>
-                        <td>CTFP 10</td>
-                        <td>Sim</td>
-                        <td>CTFP 11</td>
-                        <td>Sim</td>
-                        <td>CTFP 12</td>
-                        <td>Sim</td>
-                        <td>CTFP 13</td>
-                        <td>
-                            <span class="status-negado"><i class="icon">❌</i> Negado</span>
-                        </td> <!-- Random Status -->
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Nome 4</td>
-                        <td>Avaliação 4</td>
-                        <td>Prova 4</td>
-                        <td>Nota 4</td>
-                        <td>Não</td>
-                        <td>CTFP 14</td>
-                        <td>Sim</td>
-                        <td>CTFP 15</td>
-                        <td>Não</td>
-                        <td>CTFP 16</td>
-                        <td>Sim</td>
-                        <td>CTFP 17</td>
-                        <td>Sim</td>
-                        <td>CTFP 18</td>
-                        <td>Não</td>
-                        <td>CTFP 19</td>
-                        <td>Sim</td>
-                        <td>CTFP 20</td>
-                        <td>Sim</td>
-                        <td>CTFP 21</td>
-                        <td>Não</td>
-                        <td>CTFP 22</td>
-                        <td>
-                            <span class="status-aceite"><i class="icon">✅</i> Aceite</span>
-                        </td> <!-- Random Status -->
-                    </tr>
+                    {% endfor %}
+                    
                 </tbody>
             </table>
         </div>
