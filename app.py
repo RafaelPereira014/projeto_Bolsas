@@ -42,21 +42,21 @@ def selectionpage():
     bolsas = get_bolsas()  # Call the function to get bolsas
     return render_template('selection.html', bolsas=bolsas)
 
-@app.route('/get_escolas/<int:bolsa_id>', methods=['GET'])
-def get_escolas(bolsa_id):
-    escolas = get_escolas_by_bolsa(bolsa_id)  # Get associated escolas for the bolsa_id
-    return {'escolas': escolas} 
+# @app.route('/get_escolas/<int:bolsa_id>', methods=['GET'])
+# def get_escolas(bolsa_id):
+#     escolas = get_escolas_by_bolsa(bolsa_id)  # Get associated escolas for the bolsa_id
+#     return {'escolas': escolas} 
 
 @app.route('/consulta')
 def metadatapage():
     scores = get_all_user_scores()  # Retrieve user scores
     return render_template('consulta.html', scores=scores)
 
-@app.route('/get_escolas/<int:user_id>')
-def fetch_escolas(user_id):
-    bolsa_id = 1  # Or fetch this dynamically based on context
-    escolas = get_escolas_by_bolsa(user_id, bolsa_id)
-    return jsonify(escolas)  # Return JSON response
+# @app.route('/get_escolas/<int:user_id>')
+# def fetch_escolas(user_id):
+#     bolsa_id = 1  # Or fetch this dynamically based on context
+#     escolas = get_escolas_by_bolsa(user_id, bolsa_id)
+#     return jsonify(escolas)  # Return JSON response
 
 
 @app.route('/Bolsas/SaoMiguel')
@@ -82,7 +82,7 @@ def bolsa_terceira():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -99,7 +99,7 @@ def bolsa_santa_maria():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/SantaMaria.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -115,7 +115,7 @@ def bolsa_faial():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Faial.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -131,7 +131,7 @@ def bolsa_pico():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Pico.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -147,7 +147,7 @@ def bolsa_sao_jorge():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/SaoJorge.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -163,7 +163,7 @@ def bolsa_graciosa():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Graciosa.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -179,7 +179,7 @@ def bolsa_flores():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Flores.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)
@@ -195,7 +195,7 @@ def bolsa_corvo():
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Corvo.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
     #print(user_info)

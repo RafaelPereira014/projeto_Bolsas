@@ -110,7 +110,7 @@
                         <th>Nota Final</th>
                         <th>Bolsa de Ilha São Miguel</th>
                         <th>CTFP</th>
-                        <th>Status</th> <!-- Added Status column -->
+                        <th>Estado</th> <!-- Added Status column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -124,7 +124,13 @@
                         <td>
                             <button onclick="showEscolasPopup({{ user.id }})">Ver Escolas</button>
                         </td>
-                        
+                        <td>
+                        </td>
+                        <td>
+                            <!-- You can modify this based on your logic for status -->
+                            <span class="status-livre"><i class="icon">✔️</i> Livre</span>
+                        </td>
+
                         
                     </tr>
                     {% endfor %}
