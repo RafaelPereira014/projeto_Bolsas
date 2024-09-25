@@ -1,5 +1,7 @@
 from django import db
-from flask import Flask, flash, redirect, request, jsonify, render_template, url_for
+from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 import mysql.connector
 from mysql.connector import Error
 from db_operations.selection.db_selection import *
@@ -9,6 +11,12 @@ from db_operations.admin.admin import *
 
 
 app = Flask(__name__)
+app.secret_key = 'bolsas_ilha'
+
+
+def is_logged_in():
+    # Check if the user_id exists in the session
+    return 'user_id' in session
 
 # MySQL connection details
 def create_connection():
@@ -30,6 +38,114 @@ def create_connection():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# Login Route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        conn = create_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Query to find the user
+        query = "SELECT * FROM admin WHERE email = %s"
+        cursor.execute(query, (email,))
+        user = cursor.fetchone()
+
+        if user and check_password_hash(user['password'], password):
+            # Password matches, log the user in
+            session['user_id'] = user['id']
+            session['email'] = user['email']
+            session['username'] = user['username']
+            return redirect(url_for('mainpage'))
+        else:
+            flash('Invalid email or password', 'danger')
+
+        cursor.close()
+        conn.close()
+    
+    return render_template('login.html')
+
+# Logout Route
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    session.pop('username', None)
+    flash('You have been logged out', 'info')
+    return redirect(url_for('login'))
+
+
+@app.route('/minhaconta', methods=['GET', 'POST'])
+def minhaconta():
+    # Check if the user is logged in
+    if not is_logged_in():
+        flash("Please log in to access your account.", "warning")
+        return redirect(url_for('login'))
+    
+    # Assuming user details are stored in session for simplicity
+    user = {
+        "username": session['username'],
+        "email": session['email']  # You can retrieve more details as needed
+    }
+    
+    return render_template('minhaconta.html', user=user)
+
+
+@app.route('/update_account', methods=['POST'])
+def update_account():
+    # Check if the user is logged in
+    if not is_logged_in():
+        flash("Please log in to update your account.", "warning")
+        return redirect(url_for('login'))
+    
+    # Retrieve form data
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    confirm_password = request.form['confirm_password']
+    
+    # Initialize hashed_password
+    hashed_password = None
+
+    # Validate and hash the password if provided
+    if password:
+        if password == confirm_password:
+            hashed_password = generate_password_hash(password)
+            print(hashed_password)
+        else:
+            flash("Passwords do not match!", "danger")
+            return redirect(url_for('minhaconta'))  # Redirect back to the account details page
+
+    try:
+        connection = connect_to_database()
+        cursor = connection.cursor()
+
+        # Prepare the update query
+        update_query = "UPDATE admin SET username = %s, email = %s"
+        values = [username, email]
+
+        # If a new password is being set, include it in the update
+        if hashed_password:
+            update_query += ", password = %s"
+            values.append(hashed_password)
+
+        # Complete the query with the WHERE clause
+        update_query += " WHERE id = %s"
+        values.append(session['user_id'])  # Ensure user ID is in session
+
+        cursor.execute(update_query, tuple(values))
+        connection.commit()
+        
+        flash("Account updated successfully!", "success")
+    except Exception as e:
+        flash("An error occurred while updating the account: " + str(e), "danger")
+    finally:
+        cursor.close()
+        connection.close()
+    
+    return redirect(url_for('minhaconta'))  # Redirect back to the account details page
 
 # Route for main page with sidebar, header, footer, and table
 @app.route('/mainpage')
@@ -205,27 +321,7 @@ def bolsa_corvo():
     escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
     return render_template('/Bolsas/Corvo.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 
-@app.route('/minhaconta', methods=['GET', 'POST'])
-def minhaconta():
-    if request.method == 'POST':
-        # Handle account update logic here
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-        
-        # Add logic to update user account in the database
-        if password == confirm_password:
-            # Update the database
-            pass
-        else:
-            flash("Passwords do not match!")
-    
-    user = {
-        "username": "current_user",  # Replace with actual user data
-        "email": "user@example.com"
-    }
-    return render_template('minhaconta.html', user=user)
+
 
 
 @app.route('/add_user', methods=['GET', 'POST'])
