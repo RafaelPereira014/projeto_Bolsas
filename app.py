@@ -51,7 +51,7 @@ def login():
         cursor = conn.cursor(dictionary=True)
         
         # Query to find the user
-        query = "SELECT * FROM admin WHERE email = %s"
+        query = "SELECT * FROM Admin WHERE email = %s"
         cursor.execute(query, (email,))
         user = cursor.fetchone()
 
@@ -124,7 +124,7 @@ def update_account():
         cursor = connection.cursor()
 
         # Prepare the update query
-        update_query = "UPDATE admin SET username = %s, email = %s"
+        update_query = "UPDATE Admin SET username = %s, email = %s"
         values = [username, email]
 
         # If a new password is being set, include it in the update
