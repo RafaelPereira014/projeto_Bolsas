@@ -31,41 +31,7 @@
         .row-pending {
             background-color: #fff3cd; /* Light yellow */
         }
-        /* Modal styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0,0,0); /* Fallback color */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+        
     </style>
 </head>
 <body>
@@ -123,7 +89,7 @@
                         <td>{{ user.prova_de_conhecimentos }}</td>
                         <td>{{ user.nota_final }}</td>
                         <td>
-                            <button onclick="showEscolasPopup({{ user.id }})">Ver Escolas</button>
+                            <button onclick="showEscolasPopup({{ user.id }}, '{{ user.nome }}')">Ver Escolas</button>
                         </td>
                         <td>
                         </td>
@@ -131,7 +97,7 @@
                             <!-- You can modify this based on your logic for status -->
                             <span class="status-livre"><i class="icon">✔️</i> Livre</span>
                         </td>
-
+                        
                         
                     </tr>
                     {% endfor %}
@@ -148,7 +114,7 @@
 <div id="escolasModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <h2>Escolas e Prioridades</h2>
+        <h2 id="modalTitle">Escolas e Prioridades</h2>
         <div id="escolasList"></div>
     </div>
 </div>
@@ -159,12 +125,16 @@
     });
 </script>
 <script>
-    function showEscolasPopup(userId) {
+    function showEscolasPopup(userId, userName) {
         const escolasList = document.getElementById('escolasList');
+        const modalTitle = document.getElementById('modalTitle');
         escolasList.innerHTML = ""; // Clear previous content
-
-        // Fetch escolas for the selected user (you may want to use AJAX for real-time data)
-        fetch(`/get_escolas/${userId}`) // Assume you create a route for this
+    
+        // Set the user's name in the modal title
+        modalTitle.textContent = `Escolas e Prioridades de ${userName}`;
+    
+        // Fetch escolas for the selected user
+        fetch(`/view_escolas/${userId}/1`) // Update with your bolsa_id logic
             .then(response => response.json())
             .then(data => {
                 if (data && data.length) {
@@ -179,7 +149,7 @@
                 document.getElementById('escolasModal').style.display = "block"; // Show modal
             });
     }
-
+    
     function closeModal() {
         document.getElementById('escolasModal').style.display = "none"; // Hide modal
     }

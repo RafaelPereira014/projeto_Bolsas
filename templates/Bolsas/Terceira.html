@@ -65,7 +65,7 @@
                         <td>{{ user.prova_de_conhecimentos }}</td>
                         <td>{{ user.nota_final }}</td>
                         <td>
-                            <button onclick="showEscolasPopup({{ user.id }})">Ver Escolas</button>
+                            <button onclick="showEscolasPopup({{ user.id }}, '{{ user.nome }}')">Ver Escolas</button>
                         </td>
                         <td>
                         </td>
@@ -90,7 +90,7 @@
 <div id="escolasModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <h2>Escolas e Prioridades</h2>
+        <h2 id="modalTitle">Escolas e Prioridades</h2>
         <div id="escolasList"></div>
     </div>
 </div>
@@ -101,12 +101,16 @@
     });
 </script>
 <script>
-    function showEscolasPopup(userId) {
+    function showEscolasPopup(userId, userName) {
         const escolasList = document.getElementById('escolasList');
+        const modalTitle = document.getElementById('modalTitle');
         escolasList.innerHTML = ""; // Clear previous content
-
-        // Fetch escolas for the selected user (you may want to use AJAX for real-time data)
-        fetch(`/get_escolas/${userId}`) // Assume you create a route for this
+    
+        // Set the user's name in the modal title
+        modalTitle.textContent = `Escolas e Prioridades de ${userName}`;
+    
+        // Fetch escolas for the selected user
+        fetch(`/view_escolas/${userId}/2`) // Update with your bolsa_id logic
             .then(response => response.json())
             .then(data => {
                 if (data && data.length) {
@@ -121,7 +125,7 @@
                 document.getElementById('escolasModal').style.display = "block"; // Show modal
             });
     }
-
+    
     function closeModal() {
         document.getElementById('escolasModal').style.display = "none"; // Hide modal
     }

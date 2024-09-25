@@ -54,33 +54,33 @@
                         <th>Nota Final</th>
                         <th>Bolsa de Ilha Graciosa</th>
                         <th>CTFP</th>
+                        <th>Estado</th>
                         
                         
                         <!-- Add more columns for other bolsas as needed -->
                     </tr>
                 </thead>
                 <tbody>
+                    {% for user in user_info %}
                     <tr>
-                        <td>1</td>
-                        <td>Nome 1</td>
-                        <td>Avaliação 1</td>
-                        <td>Prova 1</td>
-                        <td>Nota 1</td>
-                        <td>Sim</td>
-                        <td>CTFP 1</td>
+                        <td>{{ loop.index }}</td> <!-- Use loop.index for row numbering -->
+                        <td>{{ user.nome }}</td>
+                        <td>{{ user.avaliacao_curricular }}</td>
+                        <td>{{ user.prova_de_conhecimentos }}</td>
+                        <td>{{ user.nota_final }}</td>
+                        <td>
+                            <button onclick="showEscolasPopup({{ user.id }}, '{{ user.nome }}')">Ver Escolas</button>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <!-- You can modify this based on your logic for status -->
+                            <span class="status-livre"><i class="icon">✔️</i> Livre</span>
+                        </td>
                         
                         
                     </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Nome 2</td>
-                        <td>Avaliação 2</td>
-                        <td>Prova 2</td>
-                        <td>Nota 2</td>
-                        <td>Não</td>
-                        <td>CTFP 3</td>
-                        
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -88,11 +88,50 @@
             <p>Footer content here.</p>
         </footer>
     </div>
+    
 </body>
+<!-- Popup Modal -->
+<div id="escolasModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">Escolas e Prioridades</h2>
+        <div id="escolasList"></div>
+    </div>
+</div>
 <script>
     document.querySelector('.toggle-button').addEventListener('click', function() {
         const bolsasMenu = document.querySelector('.bolsas-menu');
         bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
     });
+</script>
+<script>
+    function showEscolasPopup(userId, userName) {
+        const escolasList = document.getElementById('escolasList');
+        const modalTitle = document.getElementById('modalTitle');
+        escolasList.innerHTML = ""; // Clear previous content
+    
+        // Set the user's name in the modal title
+        modalTitle.textContent = `Escolas e Prioridades de ${userName}`;
+    
+        // Fetch escolas for the selected user
+        fetch(`/view_escolas/${userId}/5`) // Update with your bolsa_id logic
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length) {
+                    data.forEach(escola => {
+                        const escolaInfo = document.createElement('div');
+                        escolaInfo.textContent = `Escola ID: ${escola.escola_id}, Prioridade: ${escola.escola_priority_id}`;
+                        escolasList.appendChild(escolaInfo);
+                    });
+                } else {
+                    escolasList.textContent = "Nenhuma escola encontrada.";
+                }
+                document.getElementById('escolasModal').style.display = "block"; // Show modal
+            });
+    }
+    
+    function closeModal() {
+        document.getElementById('escolasModal').style.display = "none"; // Hide modal
+    }
 </script>
 </html>

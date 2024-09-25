@@ -67,6 +67,12 @@ def get_escolas_by_bolsa(user_ids, bolsa_id):
     connection = connect_to_database()
     cursor = connection.cursor()
 
+    # Ensure user_ids is a list
+    if isinstance(user_ids, int):  # If a single integer is passed
+        user_ids = [user_ids]  # Wrap it in a list
+    elif not isinstance(user_ids, list):
+        raise ValueError("user_ids must be a list or an integer.")
+
     try:
         # Prepare a placeholder string for multiple user_ids
         placeholders = ', '.join(['%s'] * len(user_ids))

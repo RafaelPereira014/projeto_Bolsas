@@ -169,11 +169,10 @@ def metadatapage():
     scores = get_all_user_scores()  # Retrieve user scores
     return render_template('consulta.html', scores=scores)
 
-# @app.route('/get_escolas/<int:user_id>')
-# def fetch_escolas(user_id):
-#     bolsa_id = 1  # Or fetch this dynamically based on context
-#     escolas = get_escolas_by_bolsa(user_id, bolsa_id)
-#     return jsonify(escolas)  # Return JSON response
+@app.route('/view_escolas/<int:user_id>/<int:bolsa_id>')
+def fetch_escolas(user_id, bolsa_id):
+    escolas = get_escolas_by_bolsa(user_id, bolsa_id)
+    return jsonify(escolas)  # Return JSON response
 
 
 @app.route('/Bolsas/SaoMiguel')

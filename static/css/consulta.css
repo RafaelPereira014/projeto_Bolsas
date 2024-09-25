@@ -148,3 +148,61 @@ tr:hover td {
     background-color: #d6eaf8; /* Light hover effect */
     transition: background-color 0.3s ease;
 }
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Dark background with opacity */
+}
+
+/* Modal content styles */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* Center modal with margin */
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px; /* Add rounded corners */
+    width: 80%; /* Width for larger screens */
+    max-width: 600px; /* Max width to prevent excessive stretching */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+    animation: fadeIn 0.3s; /* Smooth fade-in effect */
+}
+
+/* Close button styles */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000; /* Darker color on hover */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Animation for modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0; /* Start with transparent */
+    }
+    to {
+        opacity: 1; /* End with fully visible */
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%; /* Adjust modal width on smaller screens */
+    }
+}
