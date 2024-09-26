@@ -184,7 +184,7 @@ def update_status():
 
     try:
         # Update the user's status in the database
-        query = "UPDATE users SET estado = %s WHERE id = %s"
+        query = "UPDATE Users SET estado = %s WHERE id = %s"
         cursor.execute(query, (new_status, user_id))
         conn.commit()
 
