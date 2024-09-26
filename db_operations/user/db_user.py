@@ -16,7 +16,7 @@ def get_user_info(user_ids):
         query = f"""
         SELECT id,nome, avaliacao_curricular, prova_de_conhecimentos, nota_final 
         FROM Users 
-        WHERE id IN ({placeholders})
+        WHERE id IN ({placeholders}) ORDER BY nota_final DESC
         """
         cursor.execute(query, user_ids)
         
