@@ -6,29 +6,39 @@ def connect_to_database():
     return mysql.connector.connect(**db_config)
 
 def get_all_user_scores():
-    # Create a database connection
     connection = connect_to_database()
     cursor = connection.cursor()
 
     try:
-        # SQL query to select all names and nota_final from Users, ordered by nota_final descending
         query = """
-        SELECT id,nome, nota_final 
-        FROM Users 
-        ORDER BY nota_final DESC
+        SELECT u.id, u.nome, u.nota_final, u.estado, GROUP_CONCAT(ub.Bolsa_id) AS bolsa_ids
+        FROM users u
+        LEFT JOIN userBolsas ub ON u.id = ub.user_id 
+        GROUP BY u.id
+        ORDER BY u.nota_final DESC
         """
         cursor.execute(query)
         results = cursor.fetchall()
 
-        # Return results as a list of dictionaries
-        return [{"id": row[0], "nome": row[1], "nota_final": row[2]} for row in results]
+        scores = []
+        for row in results:
+            user_id = row[0]
+            bolsa_ids = row[4].split(',') if row[4] else []  # Adjust index to 4 for bolsa_ids
+            scores.append({
+                "id": user_id,
+                "nome": row[1],
+                "nota_final": row[2],
+                "estado": row[3],  # Correctly getting the estado field
+                "bolsa_ids": [int(bolsa_id) for bolsa_id in bolsa_ids],  # Convert to integers
+            })
+
+        return scores
 
     except Exception as e:
         print(f"Error: {e}")
-        return None  # Handle exceptions and return None
+        return []  # Return an empty list instead of None
 
     finally:
-        # Close cursor and connection
         cursor.close()
         connection.close()
         
