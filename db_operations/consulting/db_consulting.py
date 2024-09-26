@@ -12,8 +12,8 @@ def get_all_user_scores():
     try:
         query = """
         SELECT u.id, u.nome, u.nota_final, u.estado, GROUP_CONCAT(ub.Bolsa_id) AS bolsa_ids
-        FROM users u
-        LEFT JOIN userBolsas ub ON u.id = ub.user_id 
+        FROM Users u
+        LEFT JOIN userbolsas ub ON u.id = ub.user_id 
         GROUP BY u.id
         ORDER BY u.nota_final DESC
         """
