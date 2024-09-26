@@ -81,11 +81,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="contrato">Tipo de Contrato:</label>
-                    <select id="contrato" name="contrato" required>
-                        <option value="">Selecione o tipo de contrato</option>
-                        <option value="temporario">Temporário</option>
-                        <option value="permanente">Permanente</option>
+                    <label for="contrato_id">Tipo de Contrato:</label>
+                    <select id="contrato_id" name="contrato_id" required>
+                        <option value="-">Selecione o tipo de contrato</option>
+                        <option value="1">CTFP por tempo indeterminado</option>
+                        <option value="2">CTFP a termo resolutivo</option>
+                        <option value="3">CTFP por tempo indeterminado e CTFP a termo resolutivo</option>
                     </select>
                 </div>
 
@@ -111,17 +112,17 @@
     document.getElementById('ilha').addEventListener('change', function() {
         const bolsaId = this.value;
         const escolaSelect = document.getElementById('escola');
-
-        escolaSelect.innerHTML = '<option value="">Selecione a escola</option>';
-
+    
+        escolaSelect.innerHTML = '<option value="">Selecione a escola</option>';  // Clear previous options
+    
         if (bolsaId) {
             fetch(`/get_escolas/${bolsaId}`)
                 .then(response => response.json())
                 .then(data => {
                     data.escolas.forEach(escola => {
                         const option = document.createElement('option');
-                        option.value = escola[0];
-                        option.textContent = escola[1];
+                        option.value = escola; // Set the value to the school name directly
+                        option.textContent = escola; // Set the text to the school name
                         escolaSelect.appendChild(option);
                     });
                 })

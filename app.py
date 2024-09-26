@@ -18,6 +18,22 @@ def is_logged_in():
     # Check if the user_id exists in the session
     return 'user_id' in session
 
+# Função para executar a consulta SQL
+def execute_query(query, params):
+    conn = create_connection()  # Criar a conexão
+    cursor = conn.cursor(dictionary=True)  # Para retornar resultados como dicionário
+    
+    try:
+        cursor.execute(query, params)  # Executar a query com os parâmetros
+        results = cursor.fetchall()  # Obter todos os resultados da consulta
+        return results
+    except mysql.connector.Error as err:
+        print(f"Erro: {err}")
+        return None
+    finally:
+        cursor.close()  # Fechar o cursor
+        conn.close()  # Fechar a conexão
+
 def create_connection():
     connection = None
     try:
@@ -158,10 +174,84 @@ def selectionpage():
     bolsas = get_bolsas()  # Call the function to get bolsas
     return render_template('selection.html', bolsas=bolsas)
 
-# @app.route('/get_escolas/<int:bolsa_id>', methods=['GET'])
-# def get_escolas(bolsa_id):
-#     escolas = get_escolas_by_bolsa(bolsa_id)  # Get associated escolas for the bolsa_id
-#     return {'escolas': escolas} 
+@app.route('/submit_selection', methods=['POST'])
+def submit_selection():
+    # Capturar valores do formulário
+    bolsa_id = request.form['ilha']  # ID da bolsa
+    print(f"Bolsa ID: {bolsa_id}")
+
+    escola_nome = request.form['escola']  # Nome da escola
+    print(f"Nome da Escola: {escola_nome}")
+
+    # Fazer uma consulta ao banco de dados para buscar o ID da escola com base no nome
+    query = """
+        SELECT id 
+        FROM Escola 
+        WHERE nome = %s
+    """
+    escola_id_result = execute_query(query, (escola_nome,))
+
+    # Verificar se a escola foi encontrada
+    if escola_id_result:
+        escola_id = escola_id_result[0]['id']  # Pegar o ID da escola
+        print(f"Escola ID: {escola_id}")
+    else:
+        print(f"Escola não encontrada: {escola_nome}")
+        return "Escola não encontrada", 400  # Retornar um erro se a escola não for encontrada
+
+    contrato_tipo = request.form['contrato_id']  # Tipo de contrato
+    print(f"Tipo de Contrato: {contrato_tipo}")
+
+    vaga_deficiencia = request.form['vaga_deficiencia']  # Vaga com deficiência
+    print(f"Vaga Deficiência: {vaga_deficiencia}")
+
+    numero_candidatos = int(request.form['numero'])  # Número de candidatos necessários
+    print(f"Número de Candidatos: {numero_candidatos}")
+    
+    # Executa a query SQL para obter os candidatos com base na bolsa e escola
+    query = """
+    SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia
+    FROM users u
+    JOIN userbolsas ub ON u.id = ub.user_id
+    JOIN user_escola ue ON u.id = ue.user_id
+    WHERE ub.Bolsa_id = %s  -- Coloque o ID da bolsa aqui
+    AND ue.escola_id = %s  -- Coloque o ID da escola aqui
+    ORDER BY u.nota_final DESC;
+    """
+    candidates = execute_query(query, (bolsa_id, escola_id))
+    print(f"Candidatos encontrados: {candidates}")
+    
+    # Separar candidatos com e sem deficiência
+    def_candidates = [c for c in candidates if c['deficiencia'] == 'sim']
+    normal_candidates = [c for c in candidates if c['deficiencia'] == 'nao']
+    
+    selected_candidates = []
+    normal_vagas = numero_candidatos
+    def_vagas = 0
+    
+    if vaga_deficiencia == "sim":
+        # Se for vaga para deficiência, selecionar apenas candidatos com deficiência
+        selected_candidates = def_candidates[:numero_candidatos]
+    else:
+        # Distribuir vagas entre candidatos com e sem deficiência
+        if numero_candidatos >= 3 and numero_candidatos <= 10:
+            def_vagas = 1
+        elif numero_candidatos > 10:
+            def_vagas = int(numero_candidatos * 0.2)
+        
+        normal_vagas = numero_candidatos - def_vagas
+        
+        # Selecionar candidatos sem deficiência
+        selected_candidates.extend(normal_candidates[:normal_vagas])
+        
+        # Selecionar candidatos com deficiência
+        if def_vagas > 0:
+            selected_candidates.extend(def_candidates[:def_vagas])
+    
+    print(f"Candidatos selecionados: {selected_candidates}")
+    
+    # Retornar os candidatos selecionados para a página de resultados
+    return render_template('resultados.html', candidates=selected_candidates)
 
 @app.route('/consulta')
 def metadatapage():
@@ -172,6 +262,12 @@ def metadatapage():
 def fetch_escolas(user_id, bolsa_id):
     escolas = get_escolas_by_bolsa(user_id, bolsa_id)
     return jsonify(escolas)  # Return JSON response
+
+@app.route('/get_escolas/<int:bolsa_id>', methods=['GET'])
+def get_escolas(bolsa_id):
+    escolas = get_escola_names_by_bolsa(bolsa_id)  # Get associated escolas for the bolsa_id
+    
+    return {'escolas': escolas} 
 
 @app.route('/update_status', methods=['POST'])
 def update_status():

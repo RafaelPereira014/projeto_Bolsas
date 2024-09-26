@@ -107,3 +107,30 @@ def get_escolas_by_bolsa(user_ids, bolsa_id):
         cursor.close()
         connection.close()
         
+def get_escola_names_by_bolsa(bolsa_id):
+    # Create a database connection
+    connection = connect_to_database()
+    cursor = connection.cursor()
+
+    try:
+        # Query to get escola names associated with the given bolsa_id
+        query = """
+        SELECT e.nome AS escola_nome 
+        FROM bolsa_escola be
+        JOIN escola e ON be.escola_id = e.id  -- Join on escola_id
+        WHERE be.bolsa_id = %s
+        """
+        cursor.execute(query, (bolsa_id,))  # Pass bolsa_id as a parameter
+        results = cursor.fetchall()
+
+        # Return results as a list of school names
+        return [row[0] for row in results]  # Extract school names
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return []  # Return an empty list on error
+
+    finally:
+        # Close cursor and connection
+        cursor.close()
+        connection.close()
