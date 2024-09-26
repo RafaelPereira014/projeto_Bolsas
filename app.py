@@ -210,7 +210,7 @@ def submit_selection():
     
     # Executa a query SQL para obter os candidatos com base na bolsa e escola
     query = """
-    SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia
+    SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id
     FROM Users u
     JOIN userbolsas ub ON u.id = ub.user_id
     JOIN user_escola ue ON u.id = ue.user_id
@@ -251,7 +251,7 @@ def submit_selection():
     print(f"Candidatos selecionados: {selected_candidates}")
     
     # Retornar os candidatos selecionados para a página de resultados
-    return render_template('resultados.html', candidates=selected_candidates)
+    return render_template('resultados.html', candidates=selected_candidates,escola_nome=escola_nome,numero_candidatos=numero_candidatos,vaga_deficiencia=vaga_deficiencia)
 
 @app.route('/consulta')
 def metadatapage():
