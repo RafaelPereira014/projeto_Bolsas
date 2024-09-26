@@ -117,7 +117,7 @@ def get_escola_names_by_bolsa(bolsa_id):
         query = """
         SELECT e.nome AS escola_nome 
         FROM Bolsa_Escola be
-        JOIN escola e ON be.escola_id = e.id  -- Join on escola_id
+        JOIN Escola e ON be.escola_id = e.id  -- Join on escola_id
         WHERE be.bolsa_id = %s
         """
         cursor.execute(query, (bolsa_id,))  # Pass bolsa_id as a parameter

@@ -211,7 +211,7 @@ def submit_selection():
     # Executa a query SQL para obter os candidatos com base na bolsa e escola
     query = """
     SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia
-    FROM users u
+    FROM Users u
     JOIN userbolsas ub ON u.id = ub.user_id
     JOIN user_escola ue ON u.id = ue.user_id
     WHERE ub.Bolsa_id = %s  -- Coloque o ID da bolsa aqui
