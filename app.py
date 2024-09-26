@@ -2,7 +2,6 @@ from django import db
 from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
-from flask_wtf.csrf import CSRFProtect
 from config import db_config
 import mysql.connector
 from mysql.connector import Error
@@ -14,8 +13,6 @@ from db_operations.admin.admin import *
 
 app = Flask(__name__)
 app.secret_key = 'bolsas_ilha'
-# Initialize CSRF protection
-csrf = CSRFProtect(app)
 
 def is_logged_in():
     # Check if the user_id exists in the session
