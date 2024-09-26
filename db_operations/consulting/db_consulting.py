@@ -13,7 +13,7 @@ def get_all_user_scores():
     try:
         # SQL query to select all names and nota_final from Users, ordered by nota_final descending
         query = """
-        SELECT nome, nota_final 
+        SELECT id,nome, nota_final 
         FROM Users 
         ORDER BY nota_final DESC
         """
@@ -21,7 +21,7 @@ def get_all_user_scores():
         results = cursor.fetchall()
 
         # Return results as a list of dictionaries
-        return [{"nome": row[0], "nota_final": row[1]} for row in results]
+        return [{"id": row[0], "nome": row[1], "nota_final": row[2]} for row in results]
 
     except Exception as e:
         print(f"Error: {e}")
