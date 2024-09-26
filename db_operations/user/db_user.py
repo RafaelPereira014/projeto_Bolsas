@@ -14,7 +14,7 @@ def get_user_info(user_ids):
         # Prepare a placeholder string for multiple user_ids
         placeholders = ', '.join(['%s'] * len(user_ids))
         query = f"""
-        SELECT id,nome, avaliacao_curricular, prova_de_conhecimentos, nota_final 
+        SELECT id,nome, avaliacao_curricular, prova_de_conhecimentos, nota_final,estado
         FROM Users 
         WHERE id IN ({placeholders}) ORDER BY nota_final DESC
         """
@@ -30,7 +30,8 @@ def get_user_info(user_ids):
                 "nome": row[1],
                 "avaliacao_curricular": row[2],
                 "prova_de_conhecimentos": row[3],
-                "nota_final": row[4]
+                "nota_final": row[4],
+                "estado": row[5]
             }
             for row in results
         ]

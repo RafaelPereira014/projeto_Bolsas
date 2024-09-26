@@ -59,7 +59,7 @@
                 <tbody>
                     {% for user in user_info %}
                     <tr>
-                        <td>{{ loop.index }}</td> <!-- Use loop.index for row numbering -->
+                        <td>{{ loop.index }}</td>
                         <td>{{ user.nome }}</td>
                         <td>{{ user.avaliacao_curricular }}</td>
                         <td>{{ user.prova_de_conhecimentos }}</td>
@@ -67,14 +67,16 @@
                         <td>
                             <button onclick="showEscolasPopup({{ user.id }}, '{{ user.nome }}')">Ver Escolas</button>
                         </td>
+                        <td></td>
                         <td>
+                            <!-- Dropdown for status change -->
+                            <select onchange="updateStatus({{ user.id }}, this.value)">
+                                <option value="Livre" {% if user.estado == 'livre' %}selected{% endif %}>Livre</option>
+                                <option value="a aguardar resposta" {% if user.estado == 'a aguardar resposta' %}selected{% endif %}>A aguardar resposta</option>
+                                <option value="negado" {% if user.estado == 'negado' %}selected{% endif %}>Negado</option>
+                                <option value="aceite" {% if user.estado == 'aceite' %}selected{% endif %}>Aceite</option>
+                            </select>
                         </td>
-                        <td>
-                            <!-- You can modify this based on your logic for status -->
-                            <span class="status-livre"><i class="icon">✔️</i> Livre</span>
-                        </td>
-                        
-                        
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -128,6 +130,33 @@
     
     function closeModal() {
         document.getElementById('escolasModal').style.display = "none"; // Hide modal
+    }
+</script>
+<script>
+    function updateStatus(userId, newStatus) {
+        fetch(`/update_status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}' // Include CSRF token if required
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                new_status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Status updated successfully');
+            } else {
+                alert('Error updating status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating status');
+        });
     }
 </script>
 </html>

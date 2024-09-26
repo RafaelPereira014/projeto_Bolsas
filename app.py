@@ -2,6 +2,7 @@ from django import db
 from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from flask_wtf.csrf import CSRFProtect
 from config import db_config
 import mysql.connector
 from mysql.connector import Error
@@ -13,7 +14,8 @@ from db_operations.admin.admin import *
 
 app = Flask(__name__)
 app.secret_key = 'bolsas_ilha'
-
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
 
 def is_logged_in():
     # Check if the user_id exists in the session
@@ -174,6 +176,30 @@ def fetch_escolas(user_id, bolsa_id):
     escolas = get_escolas_by_bolsa(user_id, bolsa_id)
     return jsonify(escolas)  # Return JSON response
 
+@app.route('/update_status', methods=['POST'])
+def update_status():
+    data = request.json
+    user_id = data['user_id']
+    new_status = data['new_status']
+    
+    conn = create_connection()  # Assuming this creates a MySQL connection
+    cursor = conn.cursor()
+
+    try:
+        # Update the user's status in the database
+        query = "UPDATE users SET estado = %s WHERE id = %s"
+        cursor.execute(query, (new_status, user_id))
+        conn.commit()
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'success': False}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/Bolsas/SaoMiguel')
 def bolsa_sao_miguel():

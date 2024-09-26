@@ -1,3 +1,4 @@
+/* Sidebar styling */
 .sidebar ul {
     list-style-type: none;
     padding: 0;
@@ -39,6 +40,7 @@
     background-color: #007bff; /* Highlight on hover */
 }
 
+/* Updated Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -46,101 +48,79 @@ table {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    table-layout: fixed; /* Ensure table respects column widths */
+    table-layout: auto; /* Change to 'auto' for better fitting */
 }
 
 th, td {
-    padding: 5px;
+    padding: 10px; /* Add padding for better spacing */
     text-align: left;
     background-color: #f9f9f9;
-    word-wrap: break-word; /* Break long words */
-    font-size: 12px;
+    word-wrap: break-word; /* Allow long words to wrap */
+    font-size: 14px; /* Increase font size for readability */
 }
 
 th {
     background-color: #007bff; /* Bright header */
     color: white;
     font-weight: bold;
-    overflow: hidden; /* Prevent overflow */
-    text-overflow: ellipsis; /* Display ellipsis for overflow text */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Ellipsis for overflow text */
 }
 
 td {
-    overflow: hidden; /* Prevent overflow */
-    text-overflow: ellipsis; /* Display ellipsis for overflow text */
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap; /* Prevent line breaks */
-    color: #34495e; /* Softer text color */
-    border-bottom: 1px solid #eaeaea; /* Add border for separation */
+    color: #34495e;
+    border-bottom: 1px solid #eaeaea;
 }
 
-/* Specific column widths */
-th:nth-child(1),
-td:nth-child(1) {
+/* Adjusted Specific column widths */
+th:nth-child(1), td:nth-child(1) {
     width: 5%; /* ID column */
 }
 
-th:nth-child(2),
-td:nth-child(2) {
+th:nth-child(2), td:nth-child(2) {
     width: 15%; /* Nome column */
 }
 
-th:nth-child(3),
-td:nth-child(3) {
+th:nth-child(3), td:nth-child(3) {
     width: 15%; /* Avaliação Curricular column */
 }
 
-th:nth-child(4),
-td:nth-child(4) {
+th:nth-child(4), td:nth-child(4) {
     width: 15%; /* Prova de Conhecimentos column */
 }
 
-th:nth-child(5),
-td:nth-child(5) {
+th:nth-child(5), td:nth-child(5) {
     width: 10%; /* Nota Final column */
 }
 
-/* Adjust widths for Bolsa columns */
-th:nth-child(6),
-td:nth-child(6),
-th:nth-child(8),
-td:nth-child(8),
-th:nth-child(10),
-td:nth-child(10),
-th:nth-child(12),
-td:nth-child(12),
-th:nth-child(14),
-td:nth-child(14),
-th:nth-child(16),
-td:nth-child(16),
-th:nth-child(18),
-td:nth-child(18),
-th:nth-child(20),
-td:nth-child(20) {
+th:nth-child(6), td:nth-child(6),
+th:nth-child(8), td:nth-child(8),
+th:nth-child(10), td:nth-child(10),
+th:nth-child(12), td:nth-child(12),
+th:nth-child(14), td:nth-child(14),
+th:nth-child(16), td:nth-child(16),
+th:nth-child(18), td:nth-child(18),
+th:nth-child(20), td:nth-child(20) {
     width: 8%; /* Bolsa columns */
 }
 
 /* Ensure CTFP columns are visible */
-th:nth-child(7),
-td:nth-child(7),
-th:nth-child(9),
-td:nth-child(9),
-th:nth-child(11),
-td:nth-child(11),
-th:nth-child(13),
-td:nth-child(13),
-th:nth-child(15),
-td:nth-child(15),
-th:nth-child(17),
-td:nth-child(17),
-th:nth-child(19),
-td:nth-child(19) {
+th:nth-child(7), td:nth-child(7),
+th:nth-child(9), td:nth-child(9),
+th:nth-child(11), td:nth-child(11),
+th:nth-child(13), td:nth-child(13),
+th:nth-child(15), td:nth-child(15),
+th:nth-child(17), td:nth-child(17),
+th:nth-child(19), td:nth-child(19) {
     width: 8%; /* CTFP columns */
 }
 
-/* Adjust width for Status column */
-th:nth-child(21),
-td:nth-child(21) {
-    width: 10%; /* Status column */
+/* Adjust width for Estado column */
+th:nth-child(21), td:nth-child(21) {
+    width: 10%; /* Estado column */
 }
 
 /* Row hover effect */
@@ -183,8 +163,7 @@ tr:hover td {
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.close:hover, .close:focus {
     color: #000; /* Darker color on hover */
     text-decoration: none;
     cursor: pointer;
@@ -205,4 +184,96 @@ tr:hover td {
     .modal-content {
         width: 90%; /* Adjust modal width on smaller screens */
     }
+}
+
+/* Style for Ver Escolas button */
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Status Dropdown */
+select {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+select:hover {
+    background-color: #e9ecef;
+}
+
+select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Popup Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.modal .close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.modal .close:hover, .modal .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modalTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+#escolasList {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+#escolasList div {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
 }
