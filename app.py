@@ -1,3 +1,5 @@
+from email.mime.text import MIMEText
+import smtplib
 from django import db
 from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
 from werkzeug.security import generate_password_hash
@@ -252,6 +254,39 @@ def submit_selection():
     
     # Retornar os candidatos selecionados para a página de resultados
     return render_template('resultados.html', candidates=selected_candidates,escola_nome=escola_nome,numero_candidatos=numero_candidatos,vaga_deficiencia=vaga_deficiencia)
+
+
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    data = request.get_json()
+    email = data['email']
+    subject = data['subject']
+    message = data['message']
+    candidates = data['candidates']
+    
+    # Format the candidate details
+    candidate_details = "\n".join(
+        [f"Nome: {candidate['nome']}, Nota: {candidate['nota']}, Deficiência: {candidate['deficiencia']}, Prioridade: {candidate['prioridade']}" for candidate in candidates]
+    )
+    
+    # Complete message
+    full_message = f"{message}\n\nCandidatos:\n{candidate_details}"
+
+    # Send email (example with SMTP)
+    try:
+        msg = MIMEText(full_message)
+        msg['Subject'] = subject
+        msg['From'] = 'your_email@example.com'  # Your email address
+        msg['To'] = email
+
+        with smtplib.SMTP('smtp.example.com', 587) as server:
+            server.starttls()
+            server.login('your_email@example.com', 'your_password')  # Your email login credentials
+            server.send_message(msg)
+
+        return jsonify({"message": "Email sent successfully!"})
+    except Exception as e:
+        return jsonify({"message": "Failed to send email: " + str(e)}), 500
 
 @app.route('/consulta')
 def metadatapage():

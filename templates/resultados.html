@@ -24,15 +24,13 @@
             color: white;
         }
 
-        .icon {
-            margin-right: 5px;
-        }
-
         footer {
             clear: both;
             padding: 10px;
             text-align: center;
         }
+
+        
     </style>
 </head>
 <body>
@@ -71,6 +69,10 @@
             <p>Numero de vagas: {{numero_candidatos}}</p>
             <p>Vagas com deficiencia: {{vaga}} </p>
             <p>Numero de colocados: {{vaga}} </p>
+
+            <!-- Notificar Escolas button -->
+            <button id="notificar-escolas-button">Notificar Escola</button>
+
             <table>
                 <thead>
                     <tr>
@@ -105,11 +107,122 @@
             <p>Footer content here.</p>
         </footer>
     </div>
+
+    <!-- Modal for Notificar Escolas -->
+    <div class="modal" id="notificarModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Notificar Escolas</h2>
+
+            <form id="emailForm">
+                <!-- Email field -->
+                <label for="escola-email">Email da Escola:</label>
+                <input type="email" id="escola-email" required style="width: 100%;">
+
+                <!-- Subject line -->
+                <h3>Assunto: Resultados da colocação - {{escola_nome}}</h3>
+
+                <p>Mensagem: Relativamente ao pedido, foram designados os seguintes candidatos:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Nota</th>
+                            <th>Deficiência</th>
+                            <th>Prioridade da Escola</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if candidates %}
+                            {% for candidate in candidates %}
+                            <tr>
+                                <td>{{ candidate.nome }}</td>
+                                <td>{{ candidate.nota_final }}</td>
+                                <td>{{ candidate.deficiencia }}</td>
+                                <td>{{ candidate.escola_priority_id }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4">Nenhum dado disponível</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+                <div class="message-field">
+                    <label for="message">Mensagem adicional:</label>
+                    <textarea id="message" rows="4" style="width: 100%;"></textarea>
+                </div>
+
+                <button type="submit" style="margin-top: 10px;">Enviar Email</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.toggle-button').addEventListener('click', function() {
+            const bolsasMenu = document.querySelector('.bolsas-menu');
+            bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Modal functionality
+        const modal = document.getElementById("notificarModal");
+        const btn = document.getElementById("notificar-escolas-button");
+        const span = document.getElementsByClassName("close")[0];
+
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Handle form submission
+        // Handle form submission
+        document.getElementById("emailForm").onsubmit = function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Gather data from the form
+            const email = document.getElementById("escola-email").value;
+            const message = document.getElementById("message").value;
+            const subject = "Resultados da colocação - {{ escola_nome }}";  // Updated line
+            const candidates = [...document.querySelectorAll('tbody tr')].map(row => {
+                const cols = row.querySelectorAll('td');
+                return {
+                    nome: cols[1].innerText,
+                    nota: cols[2].innerText,
+                    deficiencia: cols[3].innerText,
+                    prioridade: cols[4].innerText
+                };
+            });
+
+            // Send email via AJAX (example using Fetch API)
+            fetch('/send_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, subject, message, candidates }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Show success message
+                modal.style.display = "none"; // Close modal
+                document.getElementById("emailForm").reset(); // Reset form
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error sending email. Please try again.'); // Show error message
+            });
+        };
+    </script>
 </body>
-<script>
-    document.querySelector('.toggle-button').addEventListener('click', function() {
-        const bolsasMenu = document.querySelector('.bolsas-menu');
-        bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
-    });
-</script>
 </html>
