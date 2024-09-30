@@ -194,28 +194,26 @@ def submit_selection():
     bolsa_id = request.form['ilha']
     print(f"Bolsa ID: {bolsa_id}")
 
-    escolas = request.form.getlist('escolas[]')  # Get the list of selected schools
+    escolas_data = request.form.getlist('escolas[]')  # Get the list of selected schools
     vagas_per_escola = {}
 
     # Capture the number of vacancies for each selected school
-    for escola in escolas:
-        vagas_key = f'vagas_{escola}'
-        vagas_per_escola[escola] = int(request.form[vagas_key])
-        print(f"Escola: {escola}, Vagas: {vagas_per_escola[escola]}")
+    for escola_data in escolas_data:
+        escola_nome, vagas_normais, vaga_deficiencia = escola_data.split(':')
+        vagas_per_escola[escola_nome] = {
+            'vagas_normais': int(vagas_normais),
+            'vaga_deficiencia': vaga_deficiencia
+        }
+        print(f"Escola: {escola_nome}, Vagas Normais: {vagas_normais}, Vaga Deficiência: {vaga_deficiencia}")
 
     contrato_tipo = request.form['contrato_id']
     print(f"Tipo de Contrato: {contrato_tipo}")
 
-    vaga_deficiencia = request.form['vaga_deficiencia']
-    print(f"Vaga Deficiência: {vaga_deficiencia}")
-
-    total_candidatos = sum(vagas_per_escola.values())  # Total number of candidates
-    print(f"Número total de candidatos: {total_candidatos}")
-
-    selected_candidates = []
+    selected_candidates = set()  # To track selected candidates
+    candidates_by_school = {}  # To hold candidates by school
 
     # Loop through each selected school and fetch candidates for each
-    for escola_nome, numero_vagas in vagas_per_escola.items():
+    for escola_nome, vagas_info in vagas_per_escola.items():
         # Fetch the escola_id based on the escola_nome
         query = """
             SELECT id 
@@ -241,36 +239,40 @@ def submit_selection():
             candidates = execute_query(query, (bolsa_id, escola_id))
             print(f"Candidatos encontrados para {escola_nome}: {candidates}")
 
-            # Separate candidates based on disability
-            def_candidates = [c for c in candidates if c['deficiencia'] == 'sim']
-            normal_candidates = [c for c in candidates if c['deficiencia'] == 'nao']
+            # Separate candidates based on disability and ensure they are not already selected
+            def_candidates = [c for c in candidates if c['deficiencia'] == 'sim' and c['candidato_id'] not in selected_candidates]
+            normal_candidates = [c for c in candidates if c['deficiencia'] == 'nao' and c['candidato_id'] not in selected_candidates]
 
-            normal_vagas = numero_vagas
+            normal_vagas = vagas_info['vagas_normais']
             def_vagas = 0
 
-            if vaga_deficiencia == "sim":
+            if vagas_info['vaga_deficiencia'] == "sim":
                 # Select only candidates with disabilities
-                selected_candidates.extend(def_candidates[:numero_vagas])
+                selected_def = def_candidates[:normal_vagas]
+                selected_candidates.update(c['candidato_id'] for c in selected_def)
+                candidates_by_school[escola_nome] = selected_def
             else:
                 # Distribute vacancies between candidates with and without disabilities
-                if numero_vagas >= 3 and numero_vagas <= 10:
+                if normal_vagas >= 3 and normal_vagas <= 10:
                     def_vagas = 1
-                elif numero_vagas > 10:
-                    def_vagas = int(numero_vagas * 0.2)
-
-                normal_vagas = numero_vagas - def_vagas
+                elif normal_vagas > 10:
+                    def_vagas = int(normal_vagas * 0.2)
 
                 # Select normal candidates
-                selected_candidates.extend(normal_candidates[:normal_vagas])
+                selected_normal = normal_candidates[:normal_vagas - def_vagas]
+                selected_candidates.update(c['candidato_id'] for c in selected_normal)
 
                 # Select candidates with disabilities
-                if def_vagas > 0:
-                    selected_candidates.extend(def_candidates[:def_vagas])
+                selected_def = def_candidates[:def_vagas] if def_vagas > 0 else []
+                selected_candidates.update(c['candidato_id'] for c in selected_def)
 
-    print(f"Candidatos selecionados: {selected_candidates}")
+                # Combine selected candidates
+                candidates_by_school[escola_nome] = selected_normal + selected_def
+
+    print(f"Candidatos selecionados: {candidates_by_school}")
 
     # Return the selected candidates to the results page
-    return render_template('resultados.html', candidates=selected_candidates, escolas=escolas, vagas_per_escola=vagas_per_escola, vaga_deficiencia=vaga_deficiencia)
+    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola)
 
 
 @app.route('/send_email', methods=['POST'])

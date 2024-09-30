@@ -40,7 +40,7 @@
 
         <div class="content">
             <h2>Formulário para Seleção</h2>
-            <form action="/submit_selection" method="POST" class="form-horizontal">
+            <form id="selectionForm" action="/submit_selection" method="POST" class="form-horizontal" novalidate>
                 <div class="form-group">
                     <label for="vaga_deficiencia">A vaga é exclusiva a deficiência?</label>
                     <select id="vaga_deficiencia" name="vaga_deficiencia" required onchange="handleDeficienciaChange()">
@@ -71,10 +71,6 @@
                         <option value="">Selecione a escola</option>
                     </select>
                 </div>
-
-                <!-- Hidden inputs for vagas -->
-                <input type="hidden" id="normal" name="normal" value="0">
-                <input type="hidden" id="deficiencia" name="deficiencia" value="0">
 
                 <div class="form-group">
                     <label for="contrato">Tipo de Contrato:</label>
@@ -108,7 +104,7 @@
                 </div>
 
                 <!-- Hidden inputs for selected schools and their vagas -->
-                <input type="hidden" name="escolas[]" id="escolas">
+                <div id="hiddenInputsContainer"></div>
 
                 <div class="form-group">
                     <button type="submit">Submeter</button>
@@ -154,13 +150,13 @@
             const escolaSelect = document.getElementById('escola');
             const selectedValue = escolaSelect.value;
             const selectedText = escolaSelect.options[escolaSelect.selectedIndex].text;
-            const vagasInput = document.getElementById('normal').value; // Get normal vagas
-            const deficienciaInput = document.getElementById('deficiencia').value; // Get deficiency vagas
+            const vagasInput = document.getElementById('numero').value; // Get normal vagas
+            const deficienciaInput = document.getElementById('vaga_deficiencia').value; // Get deficiency vagas
             const contratoSelect = document.getElementById('contrato');
             const selectedContrato = contratoSelect.value; // Get contract type
             const vagaDeficienciaSelect = document.getElementById('vaga_deficiencia').value; // Get selected deficiency option
 
-            if (selectedValue && vagasInput && deficienciaInput && contratoSelect.value) {
+            if (selectedValue && vagasInput && contratoSelect.value) {
                 // Add selected school to the table
                 const tableBody = document.getElementById('selectedSchoolsTable').querySelector('tbody');
                 const row = document.createElement('tr');
@@ -175,46 +171,29 @@
                 `;
                 tableBody.appendChild(row);
 
-                // Add hidden input for the selected school
-                const escolasInput = document.getElementById('escolas');
-                escolasInput.value += `${selectedText},`; // Append school name to the hidden input
+                // Create hidden inputs for the selected school and its details
+                const hiddenInputsContainer = document.getElementById('hiddenInputsContainer');
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'escolas[]'; // Array of selected schools
+                hiddenInput.value = `${selectedText}:${vagasInput}:${vagaDeficienciaSelect}`; // Format: schoolName:vagas:deficiencia
+                hiddenInputsContainer.appendChild(hiddenInput);
 
-                // Clear the selections
+                // Clear the school selection but keep the other inputs
                 escolaSelect.value = '';
-                document.getElementById('numero').value = ''; // Clear the number of candidates
-                document.getElementById('normal').value = '0'; // Reset normal vagas
-                document.getElementById('deficiencia').value = '0'; // Reset deficiency vagas
-                contratoSelect.value = '';
-                document.getElementById('vaga_deficiencia').value = ''; // Reset the deficiency selection
+                // Commenting these out to keep the input values
+                // document.getElementById('numero').value = ''; // Clear the number of candidates
+                // contratoSelect.value = ''; // Clear the contract type
 
-                // Add event listener to remove button
+                // Add event listener to the remove button
                 row.querySelector('.removeSchoolBtn').addEventListener('click', function() {
                     tableBody.removeChild(row);
+                    hiddenInputsContainer.removeChild(hiddenInput); // Remove the corresponding hidden input
                 });
             } else {
                 alert('Por favor, preencha todos os campos antes de adicionar uma escola.');
             }
         });
-
-        function handleDeficienciaChange() {
-            const vagaDeficienciaSelect = document.getElementById('vaga_deficiencia').value;
-            const normalVagas = document.getElementById('numero').value;
-
-            if (vagaDeficienciaSelect === "sim") {
-                // Set the deficiency vagas to be the same as normal vagas
-                document.getElementById('deficiencia').value = normalVagas;
-            } else {
-                // Reset deficiency vagas if not exclusive
-                document.getElementById('deficiencia').value = (normalVagas > 3) ? Math.ceil(normalVagas * 0.2) : 0;
-            }
-        }
-
-        function calculateVagas() {
-            const number = document.getElementById('numero').value;
-            document.getElementById('normal').value = number;
-            // Calculate deficiency vagas based on the number of normal vacancies
-            document.getElementById('deficiencia').value = (number > 3) ? Math.ceil(number * 0.2) : 0;
-        }
     </script>
 </body>
 </html>
