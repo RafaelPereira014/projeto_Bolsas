@@ -20,7 +20,7 @@
                 <li><a href="/consulta">Página de Dados</a></li>
             </ul>
             <button class="toggle-button">Bolsas</button>
-            <ul class="bolsas-menu">
+            <ul class="bolsas-menu" style="display:none;">
                 <li><a href="/Bolsas/SaoMiguel">Bolsa de Ilha São Miguel</a></li>
                 <li><a href="/Bolsas/Terceira">Bolsa de Ilha Terceira</a></li>
                 <li><a href="/Bolsas/SantaMaria">Bolsa de Ilha Santa Maria</a></li>
@@ -42,9 +42,9 @@
             <h2>Formulário para Seleção</h2>
             <form action="/submit_selection" method="POST" class="form-horizontal">
                 <div class="form-group">
-                    <label for="vaga_deficiencia">Vaga com Deficiência:</label>
+                    <label for="vaga_deficiencia">A vaga é exclusiva a deficiência?</label>
                     <select id="vaga_deficiencia" name="vaga_deficiencia" required onchange="handleDeficienciaChange()">
-                        <option value="">A vaga inclui deficiência?</option>
+                        <option value="">-</option>
                         <option value="sim">Sim</option>
                         <option value="nao">Não</option>
                     </select>
@@ -53,14 +53,6 @@
                 <div class="form-group">
                     <label for="numero">Número de Candidatos Necessários:</label>
                     <input type="number" id="numero" name="numero" placeholder="Insira o número de candidatos" required oninput="calculateVagas()">
-                </div>
-
-                <div id="vagaInputs" class="form-group">
-                    <label for="normal">Vagas:</label>
-                    <input type="number" id="normal" name="normal" placeholder="" readonly>
-                    
-                    <label for="deficiencia">Vagas com Deficiência:</label>
-                    <input type="number" id="deficiencia" name="deficiencia" placeholder="" readonly>
                 </div>
 
                 <div class="form-group">
@@ -74,21 +66,49 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="escola">Escola:</label>
+                    <label for="escola">Escolas:</label>
                     <select id="escola" name="escola" required>
                         <option value="">Selecione a escola</option>
                     </select>
                 </div>
 
+                <!-- Hidden inputs for vagas -->
+                <input type="hidden" id="normal" name="normal" value="0">
+                <input type="hidden" id="deficiencia" name="deficiencia" value="0">
+
                 <div class="form-group">
-                    <label for="contrato_id">Tipo de Contrato:</label>
-                    <select id="contrato_id" name="contrato_id" required>
-                        <option value="-">Selecione o tipo de contrato</option>
+                    <label for="contrato">Tipo de Contrato:</label>
+                    <select id="contrato" name="contrato_id" required>
+                        <option value="">Selecione o tipo de contrato</option>
                         <option value="1">CTFP por tempo indeterminado</option>
                         <option value="2">CTFP a termo resolutivo</option>
                         <option value="3">CTFP por tempo indeterminado e CTFP a termo resolutivo</option>
                     </select>
                 </div>
+
+                <button type="button" id="addSchoolBtn">Adicionar Escola</button>
+
+                <div class="selected-schools">
+                    <h3>Escolas Selecionadas</h3>
+                    <table id="selectedSchoolsTable">
+                        <thead>
+                            <tr>
+                                <th>Nome da Escola</th>
+                                <th>Vagas Normais</th>
+                                <th>Vagas para Deficientes</th>
+                                <th>Tipo de Contrato</th>
+                                <th>Vaga exclusiva a deficiência</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Selected schools will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Hidden inputs for selected schools and their vagas -->
+                <input type="hidden" name="escolas[]" id="escolas">
 
                 <div class="form-group">
                     <button type="submit">Submeter</button>
@@ -101,76 +121,100 @@
         </footer>
     </div>
 
-</body>
-<script>
-    document.querySelector('.toggle-button').addEventListener('click', function() {
-        const bolsasMenu = document.querySelector('.bolsas-menu');
-        bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
-    });
-</script>
-<script>
-    document.getElementById('ilha').addEventListener('change', function() {
-        const bolsaId = this.value;
-        const escolaSelect = document.getElementById('escola');
+    <script>
+        document.querySelector('.toggle-button').addEventListener('click', function() {
+            const bolsasMenu = document.querySelector('.bolsas-menu');
+            bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('ilha').addEventListener('change', function() {
+            const bolsaId = this.value;
+            const escolaSelect = document.getElementById('escola');
     
-        escolaSelect.innerHTML = '<option value="">Selecione a escola</option>';  // Clear previous options
+            escolaSelect.innerHTML = '<option value="">Selecione a escola</option>';  // Clear previous options
     
-        if (bolsaId) {
-            fetch(`/get_escolas/${bolsaId}`)
-                .then(response => response.json())
-                .then(data => {
-                    data.escolas.forEach(escola => {
-                        const option = document.createElement('option');
-                        option.value = escola; // Set the value to the school name directly
-                        option.textContent = escola; // Set the text to the school name
-                        escolaSelect.appendChild(option);
+            if (bolsaId) {
+                fetch(`/get_escolas/${bolsaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.escolas.forEach(escola => {
+                            const option = document.createElement('option');
+                            option.value = escola; // Set the value to the school name directly
+                            option.textContent = escola; // Set the text to the school name
+                            escolaSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching escolas:', error);
                     });
-                })
-                .catch(error => {
-                    console.error('Error fetching escolas:', error);
+            }
+        });
+
+        document.getElementById('addSchoolBtn').addEventListener('click', function() {
+            const escolaSelect = document.getElementById('escola');
+            const selectedValue = escolaSelect.value;
+            const selectedText = escolaSelect.options[escolaSelect.selectedIndex].text;
+            const vagasInput = document.getElementById('normal').value; // Get normal vagas
+            const deficienciaInput = document.getElementById('deficiencia').value; // Get deficiency vagas
+            const contratoSelect = document.getElementById('contrato');
+            const selectedContrato = contratoSelect.value; // Get contract type
+            const vagaDeficienciaSelect = document.getElementById('vaga_deficiencia').value; // Get selected deficiency option
+
+            if (selectedValue && vagasInput && deficienciaInput && contratoSelect.value) {
+                // Add selected school to the table
+                const tableBody = document.getElementById('selectedSchoolsTable').querySelector('tbody');
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${selectedText}</td>
+                    <td>${vagasInput}</td>
+                    <td>${deficienciaInput}</td>
+                    <td>${contratoSelect.options[contratoSelect.selectedIndex].text}</td>
+                    <td>${vagaDeficienciaSelect}</td>
+                    <td><button class="removeSchoolBtn">Remover</button></td>
+                `;
+                tableBody.appendChild(row);
+
+                // Add hidden input for the selected school
+                const escolasInput = document.getElementById('escolas');
+                escolasInput.value += `${selectedText},`; // Append school name to the hidden input
+
+                // Clear the selections
+                escolaSelect.value = '';
+                document.getElementById('numero').value = ''; // Clear the number of candidates
+                document.getElementById('normal').value = '0'; // Reset normal vagas
+                document.getElementById('deficiencia').value = '0'; // Reset deficiency vagas
+                contratoSelect.value = '';
+                document.getElementById('vaga_deficiencia').value = ''; // Reset the deficiency selection
+
+                // Add event listener to remove button
+                row.querySelector('.removeSchoolBtn').addEventListener('click', function() {
+                    tableBody.removeChild(row);
                 });
+            } else {
+                alert('Por favor, preencha todos os campos antes de adicionar uma escola.');
+            }
+        });
+
+        function handleDeficienciaChange() {
+            const vagaDeficienciaSelect = document.getElementById('vaga_deficiencia').value;
+            const normalVagas = document.getElementById('numero').value;
+
+            if (vagaDeficienciaSelect === "sim") {
+                // Set the deficiency vagas to be the same as normal vagas
+                document.getElementById('deficiencia').value = normalVagas;
+            } else {
+                // Reset deficiency vagas if not exclusive
+                document.getElementById('deficiencia').value = (normalVagas > 3) ? Math.ceil(normalVagas * 0.2) : 0;
+            }
         }
-    });
-</script>
-<script>
-    function handleDeficienciaChange() {
-        const vagaDeficiencia = document.getElementById("vaga_deficiencia").value;
-        const vagaInputs = document.getElementById("vagaInputs");
 
-        if (vagaDeficiencia === "sim") {
-            vagaInputs.style.display = "none";
-            document.getElementById("normal").value = "";
-            document.getElementById("deficiencia").value = "";
-        } else {
-            vagaInputs.style.display = "block";
-            calculateVagas();
+        function calculateVagas() {
+            const number = document.getElementById('numero').value;
+            document.getElementById('normal').value = number;
+            // Calculate deficiency vagas based on the number of normal vacancies
+            document.getElementById('deficiencia').value = (number > 3) ? Math.ceil(number * 0.2) : 0;
         }
-    }
-
-    function calculateVagas() {
-        const numero = parseInt(document.getElementById("numero").value) || 0;
-        const vagasInput = document.getElementById("normal");
-        const deficienciaInput = document.getElementById("deficiencia");
-
-        vagasInput.value = '';
-        deficienciaInput.value = '';
-        deficienciaInput.style.display = "none";
-
-        if (numero < 3) {
-            vagasInput.value = numero;
-            vagasInput.style.display = "block";
-        } else if (numero >= 3 && numero <= 10) {
-            vagasInput.value = numero - 1;
-            deficienciaInput.value = 1;
-            deficienciaInput.style.display = "block";
-        } else if (numero > 10) {
-            deficienciaInput.value = Math.floor(numero * 0.2);
-            vagasInput.value = numero - deficienciaInput.value;
-            deficienciaInput.style.display = "block";
-        }
-    }
-
-    document.getElementById("numero").addEventListener("input", calculateVagas);
-</script>
-
+    </script>
+</body>
 </html>

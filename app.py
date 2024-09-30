@@ -171,89 +171,106 @@ def mainpage():
     return render_template('main.html')
 
 # Route for selection page (same layout as main page)
-@app.route('/selectionpage')
-def selectionpage():
-    bolsas = get_bolsas()  # Call the function to get bolsas
-    return render_template('selection.html', bolsas=bolsas)
+@app.route('/selectionpage', methods=['GET', 'POST'])
+def selection_page():
+    # This is an example, adjust the query to your actual table structure
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    # Fetch the list of schools from the database
+    cursor.execute("SELECT id, nome FROM escola")
+    escolas = cursor.fetchall()
+
+    # Fetch the list of bolsas from the database (if you have it)
+    cursor.execute("SELECT id, nome FROM bolsa")
+    bolsas = cursor.fetchall()
+
+    connection.close()
+
+    return render_template('selection.html', escolas=escolas, bolsas=bolsas)
 
 @app.route('/submit_selection', methods=['POST'])
 def submit_selection():
-    # Capturar valores do formulário
-    bolsa_id = request.form['ilha']  # ID da bolsa
+    bolsa_id = request.form['ilha']
     print(f"Bolsa ID: {bolsa_id}")
 
-    escola_nome = request.form['escola']  # Nome da escola
-    print(f"Nome da Escola: {escola_nome}")
+    escolas = request.form.getlist('escolas[]')  # Get the list of selected schools
+    vagas_per_escola = {}
 
-    # Fazer uma consulta ao banco de dados para buscar o ID da escola com base no nome
-    query = """
-        SELECT id 
-        FROM Escola 
-        WHERE nome = %s
-    """
-    escola_id_result = execute_query(query, (escola_nome,))
+    # Capture the number of vacancies for each selected school
+    for escola in escolas:
+        vagas_key = f'vagas_{escola}'
+        vagas_per_escola[escola] = int(request.form[vagas_key])
+        print(f"Escola: {escola}, Vagas: {vagas_per_escola[escola]}")
 
-    # Verificar se a escola foi encontrada
-    if escola_id_result:
-        escola_id = escola_id_result[0]['id']  # Pegar o ID da escola
-        print(f"Escola ID: {escola_id}")
-    else:
-        print(f"Escola não encontrada: {escola_nome}")
-        return "Escola não encontrada", 400  # Retornar um erro se a escola não for encontrada
-
-    contrato_tipo = request.form['contrato_id']  # Tipo de contrato
+    contrato_tipo = request.form['contrato_id']
     print(f"Tipo de Contrato: {contrato_tipo}")
 
-    vaga_deficiencia = request.form['vaga_deficiencia']  # Vaga com deficiência
+    vaga_deficiencia = request.form['vaga_deficiencia']
     print(f"Vaga Deficiência: {vaga_deficiencia}")
 
-    numero_candidatos = int(request.form['numero'])  # Número de candidatos necessários
-    print(f"Número de Candidatos: {numero_candidatos}")
-    
-    # Executa a query SQL para obter os candidatos com base na bolsa e escola
-    query = """
-    SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id
-    FROM Users u
-    JOIN userbolsas ub ON u.id = ub.user_id
-    JOIN user_escola ue ON u.id = ue.user_id
-    WHERE ub.Bolsa_id = %s  -- Coloque o ID da bolsa aqui
-    AND ue.escola_id = %s  -- Coloque o ID da escola aqui
-    ORDER BY u.nota_final DESC;
-    """
-    candidates = execute_query(query, (bolsa_id, escola_id))
-    print(f"Candidatos encontrados: {candidates}")
-    
-    # Separar candidatos com e sem deficiência
-    def_candidates = [c for c in candidates if c['deficiencia'] == 'sim']
-    normal_candidates = [c for c in candidates if c['deficiencia'] == 'nao']
-    
+    total_candidatos = sum(vagas_per_escola.values())  # Total number of candidates
+    print(f"Número total de candidatos: {total_candidatos}")
+
     selected_candidates = []
-    normal_vagas = numero_candidatos
-    def_vagas = 0
-    
-    if vaga_deficiencia == "sim":
-        # Se for vaga para deficiência, selecionar apenas candidatos com deficiência
-        selected_candidates = def_candidates[:numero_candidatos]
-    else:
-        # Distribuir vagas entre candidatos com e sem deficiência
-        if numero_candidatos >= 3 and numero_candidatos <= 10:
-            def_vagas = 1
-        elif numero_candidatos > 10:
-            def_vagas = int(numero_candidatos * 0.2)
+
+    # Loop through each selected school and fetch candidates for each
+    for escola_nome, numero_vagas in vagas_per_escola.items():
+        # Fetch the escola_id based on the escola_nome
+        query = """
+            SELECT id 
+            FROM Escola 
+            WHERE nome = %s
+        """
+        escola_id_result = execute_query(query, (escola_nome,))
         
-        normal_vagas = numero_candidatos - def_vagas
-        
-        # Selecionar candidatos sem deficiência
-        selected_candidates.extend(normal_candidates[:normal_vagas])
-        
-        # Selecionar candidatos com deficiência
-        if def_vagas > 0:
-            selected_candidates.extend(def_candidates[:def_vagas])
-    
+        if escola_id_result:
+            escola_id = escola_id_result[0]['id']
+            print(f"Escola ID: {escola_id}")
+
+            # Fetch candidates for this school and bolsa
+            query = """
+            SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id
+            FROM Users u
+            JOIN userbolsas ub ON u.id = ub.user_id
+            JOIN user_escola ue ON u.id = ue.user_id
+            WHERE ub.Bolsa_id = %s
+            AND ue.escola_id = %s
+            ORDER BY u.nota_final DESC;
+            """
+            candidates = execute_query(query, (bolsa_id, escola_id))
+            print(f"Candidatos encontrados para {escola_nome}: {candidates}")
+
+            # Separate candidates based on disability
+            def_candidates = [c for c in candidates if c['deficiencia'] == 'sim']
+            normal_candidates = [c for c in candidates if c['deficiencia'] == 'nao']
+
+            normal_vagas = numero_vagas
+            def_vagas = 0
+
+            if vaga_deficiencia == "sim":
+                # Select only candidates with disabilities
+                selected_candidates.extend(def_candidates[:numero_vagas])
+            else:
+                # Distribute vacancies between candidates with and without disabilities
+                if numero_vagas >= 3 and numero_vagas <= 10:
+                    def_vagas = 1
+                elif numero_vagas > 10:
+                    def_vagas = int(numero_vagas * 0.2)
+
+                normal_vagas = numero_vagas - def_vagas
+
+                # Select normal candidates
+                selected_candidates.extend(normal_candidates[:normal_vagas])
+
+                # Select candidates with disabilities
+                if def_vagas > 0:
+                    selected_candidates.extend(def_candidates[:def_vagas])
+
     print(f"Candidatos selecionados: {selected_candidates}")
-    
-    # Retornar os candidatos selecionados para a página de resultados
-    return render_template('resultados.html', candidates=selected_candidates,escola_nome=escola_nome,numero_candidatos=numero_candidatos,vaga_deficiencia=vaga_deficiencia)
+
+    # Return the selected candidates to the results page
+    return render_template('resultados.html', candidates=selected_candidates, escolas=escolas, vagas_per_escola=vagas_per_escola, vaga_deficiencia=vaga_deficiencia)
 
 
 @app.route('/send_email', methods=['POST'])
