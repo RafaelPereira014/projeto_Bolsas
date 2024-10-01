@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user_profile.css') }}">
+    <title>User Profile</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Perfil do Candidato</h1>
+        </header>
+
+        <div class="sidebar">
+            <ul>
+                <li><a href="/mainpage">Página Principal</a></li>
+                <li><a href="/selectionpage">Seleção de Candidatos</a></li>
+                <li><a href="/consulta">Página de Dados</a></li>
+            </ul>
+            <button class="toggle-button">Bolsas</button>
+            <ul class="bolsas-menu" style="display:none;">
+                <li><a href="/Bolsas/SaoMiguel">Bolsa de Ilha São Miguel</a></li>
+                <li><a href="/Bolsas/Terceira">Bolsa de Ilha Terceira</a></li>
+                <li><a href="/Bolsas/SantaMaria">Bolsa de Ilha Santa Maria</a></li>
+                <li><a href="/Bolsas/Faial">Bolsa de Ilha Faial</a></li>
+                <li><a href="/Bolsas/Pico">Bolsa de Ilha Pico</a></li>
+                <li><a href="/Bolsas/SaoJorge">Bolsa de Ilha São Jorge</a></li>
+                <li><a href="/Bolsas/Graciosa">Bolsa de Ilha Graciosa</a></li>
+                <li><a href="/Bolsas/Flores">Bolsa de Ilha Flores</a></li>
+                <li><a href="/Bolsas/Corvo">Bolsa de Ilha Corvo</a></li>
+            </ul>
+            <ul>
+                <li><a href="/minhaconta">Minha conta</a></li>
+                <li><a href="/add_user">Adicionar candidato</a></li>
+                <li><a href="/logout">Terminar sessão</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <h2>{{ user_info.nome }}</h2>
+            <div class="contact-info">
+                <table>
+                    
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ user_info.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contacto:</th>
+                        <td>{{ user_info.contacto }}</td>
+                    </tr>
+                    <tr>
+                        <th>Estado:</th>
+                        <td>{{ user_info.estado }}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="grades-section">
+                <h3>Notas e Avaliações</h3>
+                <table>
+                    <tr>
+                        <th>Avaliação Curricular:</th>
+                        <td>{{ user_info.avaliacao_curricular }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prova de Conhecimentos:</th>
+                        <td>{{ user_info.prova_de_conhecimentos }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nota Final:</th>
+                        <td>{{ user_info.nota_final }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            
+
+            {% if user_info.estado == "aceite" %}
+                <div class="current-bolsa-section">
+                    <h3>Bolsa Atual</h3>
+                    <table>
+                        <tr>
+                            <th>Bolsa Colocado:</th>
+                            <td>{{ user_info.bolsa_colocado }}</td>
+                        </tr>
+                        <tr>
+                            <th>Escola Colocado:</th>
+                            <td>{{ user_info.escola_colocado }}</td>
+                        </tr>
+                        <tr>
+                            <th>Contrato ID:</th>
+                            <td>{{ user_info.contrato_id }}</td>
+                        </tr>
+                    </table>
+                </div>
+            {% endif  %}
+
+            <div class="documents-section">
+                <h3>Documentos Importantes</h3>
+                <form method="POST" action="/upload_document/{{ user_info.id }}" enctype="multipart/form-data">
+                    <input type="file" name="documento">
+                    <button type="submit">Anexar Documento</button>
+                </form>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Documentos</th>
+                            <th>Ações</th> <!-- New header for actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in user_info.documentos %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('static', filename='uploads/' + doc.file_name) }}" download>{{ doc.file_name }}</a>
+                            </td>
+                            <td>
+                                <form method="POST" action="/remove_document/{{ user_info.id }}/{{ doc.file_name }}">
+                                    <button type="submit">Remover</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="additional-info">
+                <h3>Informações Adicionais</h3>
+                <table>
+                    
+                </table>
+            </div>
+        </div>
+        <footer>
+            <p>© 2024 - Gestor de Bolsas</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -12,7 +12,7 @@ def get_user_info(user_ids):
     try:
         placeholders = ', '.join(['%s'] * len(user_ids))
         query = f"""
-        SELECT u.id AS candidato_id, u.nome, u.avaliacao_curricular, u.prova_de_conhecimentos, u.nota_final, ub.contrato_id
+        SELECT u.id AS candidato_id, u.nome, u.avaliacao_curricular, u.prova_de_conhecimentos, u.nota_final, ub.contrato_id,u.estado
         FROM Users u
         JOIN userbolsas ub ON u.id = ub.user_id
         WHERE u.id IN ({placeholders})
@@ -27,7 +27,8 @@ def get_user_info(user_ids):
             "avaliacao_curricular": row[2], 
             "prova_de_conhecimentos": row[3], 
             "nota_final": row[4],
-            "contrato_id": row[5]  # Include contrato_id here
+            "contrato_id": row[5],
+            "estado": row[6]# Include contrato_id here
         } for row in results]
 
     except Exception as e:
@@ -37,5 +38,55 @@ def get_user_info(user_ids):
     finally:
         cursor.close()
         connection.close()
+        
+def user_infos(user_id):
+    connection = connect_to_database()  # Ensure this function connects to your database
+    cursor = connection.cursor()
 
+    try:
+        query = """
+        SELECT u.id AS candidato_id, u.nome, u.contacto, u.avaliacao_curricular, 
+               u.prova_de_conhecimentos, u.nota_final, ub.contrato_id, u.estado,
+               d.file_name, d.upload_date
+        FROM Users u
+        JOIN userbolsas ub ON u.id = ub.user_id
+        LEFT JOIN documents d ON u.id = d.user_id  -- Use LEFT JOIN to include users with no documents
+        WHERE u.id = %s
+        """
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchall()  # Fetch all results for the user
+
+        # Return the result as a dictionary if a user is found
+        if result:
+            user_info = {
+                "id": result[0][0],
+                "nome": result[0][1],
+                "contacto": result[0][2],
+                "avaliacao_curricular": result[0][3],
+                "prova_de_conhecimentos": result[0][4],
+                "nota_final": result[0][5],
+                "contrato_id": result[0][6],
+                "estado": result[0][7],
+                "documentos": []  # Initialize an empty list for documents
+            }
+
+            # Populate the documentos list with file names and upload dates
+            for row in result:
+                if row[8]:  # Check if file_name is not None
+                    user_info["documentos"].append({
+                        "file_name": row[8],
+                        "upload_date": row[9]
+                    })
+
+            return user_info
+
+        return {}  # Return an empty dictionary if no user is found
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return {}
+
+    finally:
+        cursor.close()
+        connection.close()
 

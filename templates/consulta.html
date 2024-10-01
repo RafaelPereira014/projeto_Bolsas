@@ -91,7 +91,7 @@
                         {% for score in scores %}
                         <tr>
                             <td>{{ loop.index }}</td>
-                            <td>{{ score.nome }}</td>
+                            <td><a href="{{ url_for('user_profile', user_id=score.id) }}">{{ score.nome }}</a></td>
                             <td>{{ score.nota_final }}</td>
                             <td>{{ '✔️' if 1 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha São Miguel -->
                             <td>{{ '✔️' if 2 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Terceira -->

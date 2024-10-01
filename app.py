@@ -1,4 +1,5 @@
 from email.mime.text import MIMEText
+import os
 import smtplib
 from django import db
 from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
@@ -15,6 +16,10 @@ from db_operations.admin.admin import *
 
 app = Flask(__name__)
 app.secret_key = 'bolsas_ilha'
+
+# Set the upload folder
+UPLOAD_FOLDER = '/Users/rafaelpereira/Desktop/projeto_Bolsas/static/ulpoads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def is_logged_in():
     # Check if the user_id exists in the session
@@ -110,6 +115,83 @@ def minhaconta():
     
     return render_template('minhaconta.html', user=user)
 
+@app.route('/user_profile/<int:user_id>', methods=['GET', 'POST'])
+def user_profile(user_id):
+    user_info = user_infos(user_id)  # Now retrieves information for all users
+    
+    
+    return render_template('user_profile.html', user_info=user_info)
+
+import os
+from flask import request, redirect, url_for, flash
+
+@app.route('/upload_document/<int:user_id>', methods=['POST'])
+def upload_document(user_id):
+    # Ensure the upload folder exists
+    upload_folder = 'static/uploads'
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    # Handle the file upload
+    if 'documento' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+
+    file = request.files['documento']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+
+    # Save the file
+    file_path = os.path.join(upload_folder, file.filename)
+    file.save(file_path)
+
+    # Optionally, you can also save the filename to the database here
+    # Save the filename to the database
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    try:
+        cursor.execute("INSERT INTO documents (user_id, file_name) VALUES (%s, %s)", (user_id, file.filename))
+        connection.commit()
+    except Exception as e:
+        print(f"Error saving document to DB: {e}")
+    finally:
+        cursor.close()
+        connection.close()
+
+
+    return redirect(url_for('user_profile', user_id=user_id))  # Adjust this to your user profile route
+
+
+@app.route('/remove_document/<int:user_id>/<path:file_name>', methods=['POST'])
+def remove_document(user_id, file_name):
+    connection = connect_to_database()  # Ensure this function connects to your database
+    cursor = connection.cursor()
+
+    try:
+        file_path = os.path.join('static/uploads', file_name)
+
+        # Remove the file from the filesystem
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            flash(f'Documento {file_name} removido com sucesso.')
+
+            # Remove the document entry from the database
+            cursor.execute("DELETE FROM documents WHERE file_name = %s", (file_name,))
+            connection.commit()
+        else:
+            flash(f'Erro: O documento {file_name} não foi encontrado no sistema.')
+
+    except Exception as e:
+        print(f"Error: {e}")
+        flash('Erro ao remover o documento.')
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect(url_for('user_profile', user_id=user_id))  # Redirect back to user profile
 
 @app.route('/update_account', methods=['POST'])
 def update_account():
@@ -228,14 +310,15 @@ def submit_selection():
 
             # Fetch candidates for this school and bolsa
             query = """
-            SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ub.contrato_id
-            FROM Users u
-            JOIN userbolsas ub ON u.id = ub.user_id
-            JOIN user_escola ue ON u.id = ue.user_id
-            WHERE ub.Bolsa_id = %s
-            AND ue.escola_id = %s
-            AND ub.contrato_id = %s 
-            ORDER BY u.nota_final DESC;
+                SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ub.contrato_id
+                FROM Users u
+                JOIN userbolsas ub ON u.id = ub.user_id
+                JOIN user_escola ue ON u.id = ue.user_id
+                WHERE ub.Bolsa_id = %s
+                AND ue.escola_id = %s
+                AND ub.contrato_id = %s 
+                AND u.estado = 'livre'  -- Add this condition to filter by estado
+                ORDER BY u.nota_final DESC;
             """
             candidates = execute_query(query, (bolsa_id, escola_id, contrato_tipo))
             print(f"Candidatos encontrados para {escola_nome}: {candidates}")
@@ -376,6 +459,7 @@ def bolsa_terceira():
         return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
+    #print(user_info)
     
     
     
