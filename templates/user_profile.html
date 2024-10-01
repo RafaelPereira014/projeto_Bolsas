@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user_profile.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <title>User Profile</title>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Perfil do Candidato</h1>
+            <h1>GBI - Gestão Bolsas Ilha</h1>
+
         </header>
 
         <div class="sidebar">
@@ -42,7 +45,6 @@
             <h2>{{ user_info.nome }}</h2>
             <div class="contact-info">
                 <table>
-                    
                     <tr>
                         <th>Email:</th>
                         <td>{{ user_info.email }}</td>
@@ -53,7 +55,17 @@
                     </tr>
                     <tr>
                         <th>Estado:</th>
-                        <td>{{ user_info.estado }}</td>
+                        <td>
+                            {% if user_info.estado == "livre" %}
+                                <i class="fas fa-check-circle" style="color: green;"></i> Livre
+                            {% elif user_info.estado == "a aguardar resposta" %}
+                                <i class="fas fa-clock" style="color: orange;"></i> A Aguardar Resposta
+                            {% elif user_info.estado == "aceite" %}
+                                <i class="fas fa-thumbs-up" style="color: blue;"></i> Aceite
+                            {% else %}
+                                <i class="fas fa-question-circle" style="color: gray;"></i> Estado Desconhecido
+                            {% endif %}
+                        </td>
                     </tr>
                 </table>
             </div>

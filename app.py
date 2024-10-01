@@ -250,7 +250,11 @@ def update_account():
 # Route for main page with sidebar, header, footer, and table
 @app.route('/mainpage')
 def mainpage():
-    return render_template('main.html')
+    no_bolsas = total_bolsas()
+    no_escolas = total_escolas()
+    no_users = total_users()
+    
+    return render_template('main.html',no_bolsas=no_bolsas,no_escolas=no_escolas,no_users=no_users)
 
 # Route for selection page (same layout as main page)
 @app.route('/selectionpage', methods=['GET', 'POST'])
@@ -352,6 +356,16 @@ def submit_selection():
 
                 # Combine selected candidates
                 candidates_by_school[escola_nome] = selected_normal + selected_def
+
+            # Update the status of selected candidates to "a aguardar resposta"
+            for selected_candidate in selected_candidates:
+                update_query = """
+                    UPDATE Users
+                    SET estado = 'a aguardar resposta'
+                    WHERE id = %s
+                """
+                execute_update(update_query, (selected_candidate,))
+                print(f"Updated status for candidate {selected_candidate} to 'a aguardar resposta'.")
 
     print(f"Candidatos selecionados: {candidates_by_school}")
 

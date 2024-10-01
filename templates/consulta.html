@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/consulta.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <title>Metadata page</title>
     <style>
         table {
@@ -38,7 +40,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Metadata Page</h1>
+            <h1>GBI - Gestão Bolsas Ilha</h1>
         </header>
 
         <div class="sidebar">
@@ -67,7 +69,7 @@
         </div>
 
         <div class="content">
-            <h2>Metadata Page</h2>
+            <h2>Tabela geral</h2>
             <table>
                 <thead>
                     <tr>
@@ -102,7 +104,17 @@
                             <td>{{ '✔️' if 7 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Graciosa -->
                             <td>{{ '✔️' if 8 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Flores -->
                             <td>{{ '✔️' if 9 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Corvo -->
-                            <td>{{ score.estado }}</td>
+                            <td>
+                            {% if score.estado == "livre" %}
+                                <i class="fas fa-check-circle" style="color: green;"></i> Livre
+                            {% elif score.estado == "a aguardar resposta" %}
+                                <i class="fas fa-clock" style="color: orange;"></i> A Aguardar Resposta
+                            {% elif score.estado == "aceite" %}
+                                <i class="fas fa-thumbs-up" style="color: blue;"></i> Aceite
+                            {% else %}
+                                <i class="fas fa-question-circle" style="color: gray;"></i> Estado Desconhecido
+                            {% endif %}
+                        </td>
                         </tr>
                         {% endfor %}
                     {% else %}

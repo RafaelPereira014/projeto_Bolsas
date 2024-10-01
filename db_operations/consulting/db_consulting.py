@@ -5,6 +5,21 @@ def connect_to_database():
     """Establishes a connection to the MySQL database."""
     return mysql.connector.connect(**db_config)
 
+def execute_update(query, params):
+    connection = connect_to_database()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(query, params)
+        connection.commit()  # Ensure changes are saved
+        print("Update successful")
+    except Exception as e:
+        connection.rollback()  # Rollback in case of error
+        print(f"Error executing update: {e}")
+    finally:
+        cursor.close()
+        connection.close()
+
 def get_all_user_scores():
     connection = connect_to_database()
     cursor = connection.cursor()
@@ -136,3 +151,43 @@ def get_escola_names_by_bolsa(bolsa_id):
         # Close cursor and connection
         cursor.close()
         connection.close()
+        
+def total_bolsas():
+    # Create a database connection
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    cursor.execute("SELECT COUNT(*) from Bolsa ")
+    results = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
+    
+    return results[0] if results else 0  # Return 0 if results is None
+
+def total_escolas():
+    # Create a database connection
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    cursor.execute("SELECT COUNT(*) from Escola ")
+    results = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
+    
+    return results[0] if results else 0  # Return 0 if results is None
+
+def total_users():
+    # Create a database connection
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    cursor.execute("SELECT COUNT(*) FROM Users")
+    results = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
+    
+    # Return the first element of the tuple
+    return results[0] if results else 0  # Return 0 if results is None

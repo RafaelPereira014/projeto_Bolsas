@@ -7,42 +7,87 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <title>Página Principal</title>
     <style>
-       
-        .status-livre {
-            color: green;
-            font-weight: bold;
+        /* Overview styles */
+        .overview {
+            background-color: #f0f8ff; /* Light background for overview section */
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .status-a-aguardar {
-            color: orange;
-            font-weight: bold;
+        .overview h3 {
+            color: #007bff; /* Bright header color */
+            margin-bottom: 10px;
         }
 
-        .status-negado {
-            color: red;
-            font-weight: bold;
+        .overview ul {
+            list-style-type: none;
+            padding: 0;
         }
 
-        .status-aceite {
-            color: blue;
-            font-weight: bold;
+        .overview ul li {
+            margin: 5px 0;
+            font-size: 1.1rem;
         }
 
-        .icon {
-            margin-right: 5px;
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        footer {
-            clear: both;
-            padding: 10px;
-            text-align: center;
+        th, td {
+            padding: 15px;
+            text-align: left;
+            background-color: #ffffff; /* White background for table rows */
         }
+
+        th {
+            background-color: #007bff; /* Bright header */
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9; /* Zebra striping for better readability */
+        }
+
+        tbody tr:hover {
+            background-color: #e0f7fa; /* Light blue on hover */
+        }
+
+        /* Additional styling for headers in the content area */
+        .content h2 {
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+
+        .content p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        
+
+        
+        
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Página Principal</h1>
+            <h1>GBI - Gestão Bolsas Ilha</h1>
         </header>
 
         <div class="sidebar">
@@ -71,66 +116,44 @@
         </div>
 
         <div class="content">
-            <h2>Bem vindo à Página Principal</h2>
-            <p>Here you can manage all the important aspects of our application. Below is a brief overview of the current status:</p>
+            <h2>Bem-vindo à Página Principal</h2>
+            <p>Aqui pode gerir todos os aspetos importantes da nossa aplicação. Abaixo está uma breve visão geral das estatisticas atuais:</p>
 
             <div class="overview">
-                <h3>Estatisticas</h3>
+                <h3>Estatísticas</h3>
                 <ul>
-                    <li>Total Users: <strong>150</strong></li>
-                    <li>Total Bolsas: <strong>5</strong></li>
-                    <li>Total Escolas: <strong>10</strong></li>
+                    <li>Número de utilizadores: <strong>{{ no_users }}</strong></li>
+                    <li>Número de bolsas: <strong>{{ no_bolsas }}</strong></li>
+                    <li>Número de escolas: <strong>{{ no_escolas }}</strong></li>
+                    <li>Colocados: <strong>{{ no_colocados }}</strong></li>
                 </ul>
             </div>
 
-            <h3>Recent Activities</h3>
+            <h3>Atividades Recentes</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Status</th>
-                        <th>Date</th>
+                        <th>Atividade</th>
+                        <th>Data</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John Doe</td>
-                        <td>Applied for Bolsa</td>
-                        <td><span class="status-livre"><i class="icon">✔️</i> Livre</span></td>
-                        <td>2024-09-22</td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>Updated Profile</td>
-                        <td><span class="status-a-aguardar"><i class="icon">⏳</i> A Aguardar Resposta</span></td>
-                        <td>2024-09-21</td>
-                    </tr>
-                    <tr>
-                        <td>Mike Johnson</td>
-                        <td>Submitted Selection</td>
-                        <td><span class="status-negado"><i class="icon">❌</i> Negado</span></td>
-                        <td>2024-09-20</td>
-                    </tr>
-                    <tr>
-                        <td>Anna Brown</td>
-                        <td>Accepted Application</td>
-                        <td><span class="status-aceite"><i class="icon">✅</i> Aceite</span></td>
-                        <td>2024-09-19</td>
-                    </tr>
+                    <!-- Add recent activity data here -->
+                    
                 </tbody>
             </table>
         </div>
 
         <footer>
-            <p>Footer content here.</p>
+            <p>© 2024 - GBI. Todos os direitos reservados.</p>
         </footer>
     </div>
+
+    <script>
+        document.querySelector('.toggle-button').addEventListener('click', function() {
+            const bolsasMenu = document.querySelector('.bolsas-menu');
+            bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
+        });
+    </script>
 </body>
-<script>
-    document.querySelector('.toggle-button').addEventListener('click', function() {
-        const bolsasMenu = document.querySelector('.bolsas-menu');
-        bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
-    });
-</script>
 </html>
