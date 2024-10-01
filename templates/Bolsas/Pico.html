@@ -71,7 +71,7 @@
                         <td>
                             <button onclick="showEscolasPopup({{ user.id }}, '{{ user.nome }}')">Ver Escolas</button>
                         </td>
-                        <td></td>
+                        <td>{{user.contrato_id}}</td>
                         <td>
                             <!-- Dropdown for status change -->
                             <select onchange="updateStatus({{ user.id }}, this.value)">

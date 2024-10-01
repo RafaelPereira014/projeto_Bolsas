@@ -131,7 +131,7 @@ def update_account():
     if password:
         if password == confirm_password:
             hashed_password = generate_password_hash(password)
-            print(hashed_password)
+            #print(hashed_password)
         else:
             flash("Passwords do not match!", "danger")
             return redirect(url_for('minhaconta'))  # Redirect back to the account details page
@@ -228,15 +228,16 @@ def submit_selection():
 
             # Fetch candidates for this school and bolsa
             query = """
-            SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id
+            SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ub.contrato_id
             FROM Users u
             JOIN userbolsas ub ON u.id = ub.user_id
             JOIN user_escola ue ON u.id = ue.user_id
             WHERE ub.Bolsa_id = %s
             AND ue.escola_id = %s
+            AND ub.contrato_id = %s 
             ORDER BY u.nota_final DESC;
             """
-            candidates = execute_query(query, (bolsa_id, escola_id))
+            candidates = execute_query(query, (bolsa_id, escola_id, contrato_tipo))
             print(f"Candidatos encontrados para {escola_nome}: {candidates}")
 
             # Separate candidates based on disability and ensure they are not already selected
@@ -363,6 +364,7 @@ def bolsa_sao_miguel():
 
     escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
     #print(escolas_bolsa)
+    
     return render_template('/Bolsas/SaoMiguel.html', user_info=user_info, escolas_bolsa=escolas_bolsa)
 
 @app.route('/Bolsas/Terceira')
@@ -374,11 +376,12 @@ def bolsa_terceira():
         return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
+    
     
     
 
     escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    #print(escolas_bolsa)
     #print(escolas_bolsa)
     return render_template('/Bolsas/Terceira.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
 

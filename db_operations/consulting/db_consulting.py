@@ -87,16 +87,17 @@ def get_escolas_by_bolsa(user_ids, bolsa_id):
         # Prepare a placeholder string for multiple user_ids
         placeholders = ', '.join(['%s'] * len(user_ids))
         query = f"""
-        SELECT ue.user_id, ue.escola_id, ue.escola_priority_id 
+        SELECT ue.user_id, ue.escola_id, ue.escola_priority_id, ub.contrato_id
         FROM user_escola ue
         JOIN Bolsa_Escola be ON ue.escola_id = be.escola_id
+        JOIN userbolsas ub ON ue.user_id = ub.user_id  -- Join with userbolsas to get contrato_id
         WHERE ue.user_id IN ({placeholders}) AND be.bolsa_id = %s
         """
         cursor.execute(query, (*user_ids, bolsa_id))  # Pass user_ids and bolsa_id as parameters
         results = cursor.fetchall()
 
         # Return results as a list of dictionaries
-        return [{"user_id": row[0], "escola_id": row[1], "escola_priority_id": row[2]} for row in results]
+        return [{"user_id": row[0], "escola_id": row[1], "escola_priority_id": row[2], "contrato_id": row[3]} for row in results]
 
     except Exception as e:
         print(f"Error: {e}")
