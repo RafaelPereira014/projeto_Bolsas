@@ -12,7 +12,7 @@ def get_user_info(user_ids):
     try:
         placeholders = ', '.join(['%s'] * len(user_ids))
         query = f"""
-        SELECT u.id AS candidato_id, u.nome, u.avaliacao_curricular, u.prova_de_conhecimentos, u.nota_final, ub.contrato_id,u.estado
+        SELECT DISTINCT u.id AS candidato_id, u.nome, u.avaliacao_curricular, u.prova_de_conhecimentos, u.nota_final, ub.contrato_id, u.estado
         FROM Users u
         JOIN userbolsas ub ON u.id = ub.user_id
         WHERE u.id IN ({placeholders})

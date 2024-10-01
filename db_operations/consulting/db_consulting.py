@@ -102,7 +102,7 @@ def get_escolas_by_bolsa(user_ids, bolsa_id):
         # Prepare a placeholder string for multiple user_ids
         placeholders = ', '.join(['%s'] * len(user_ids))
         query = f"""
-        SELECT ue.user_id, ue.escola_id, ue.escola_priority_id, ub.contrato_id, e.nome AS escola_nome
+        SELECT DISTINCT ue.user_id, ue.escola_id, ue.escola_priority_id, ub.contrato_id, e.nome AS escola_nome
         FROM user_escola ue
         JOIN Bolsa_Escola be ON ue.escola_id = be.escola_id
         JOIN userbolsas ub ON ue.user_id = ub.user_id  -- Join with userbolsas to get contrato_id
