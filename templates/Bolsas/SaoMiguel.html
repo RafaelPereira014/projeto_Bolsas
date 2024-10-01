@@ -142,7 +142,7 @@
                 if (data && data.length) {
                     data.forEach(escola => {
                         const escolaInfo = document.createElement('div');
-                        escolaInfo.textContent = `Escola ID: ${escola.escola_id}, Prioridade: ${escola.escola_priority_id}`;
+                        escolaInfo.textContent = `${escola.escola_nome}, Prioridade: ${escola.escola_priority_id}`;
                         escolasList.appendChild(escolaInfo);
                     });
                 } else {
