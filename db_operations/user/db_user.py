@@ -15,7 +15,7 @@ def get_user_info(user_ids):
         SELECT DISTINCT u.id AS candidato_id, u.nome, u.avaliacao_curricular, u.prova_de_conhecimentos, u.nota_final, ub.contrato_id, u.estado
         FROM Users u
         JOIN userbolsas ub ON u.id = ub.user_id
-        WHERE u.id IN ({placeholders})
+        WHERE u.id IN ({placeholders}) ORDER BY u.nota_final DESC
         """
         cursor.execute(query, user_ids)
         results = cursor.fetchall()
@@ -51,7 +51,7 @@ def user_infos(user_id):
         FROM Users u
         JOIN userbolsas ub ON u.id = ub.user_id
         LEFT JOIN documents d ON u.id = d.user_id  -- Use LEFT JOIN to include users with no documents
-        WHERE u.id = %s
+        WHERE u.id = %s ORDER BY u.nota_final DESC
         """
         cursor.execute(query, (user_id,))
         result = cursor.fetchall()  # Fetch all results for the user

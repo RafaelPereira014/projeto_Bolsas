@@ -1,3 +1,4 @@
+from datetime import date
 from email.mime.text import MIMEText
 import os
 import smtplib
@@ -279,7 +280,8 @@ def selection_page():
 def submit_selection():
     bolsa_id = request.form['ilha']
     print(f"Bolsa ID: {bolsa_id}")
-
+    date_today = date.today()
+    
     escolas_data = request.form.getlist('escolas[]')  # Get the list of selected schools
     vagas_per_escola = {}
 
@@ -313,6 +315,7 @@ def submit_selection():
             print(f"Escola ID: {escola_id}")
 
             # Fetch candidates for this school and bolsa
+            # Modified part of the query to handle contrato_tipo logic
             query = """
                 SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ub.contrato_id
                 FROM Users u
@@ -320,11 +323,17 @@ def submit_selection():
                 JOIN user_escola ue ON u.id = ue.user_id
                 WHERE ub.Bolsa_id = %s
                 AND ue.escola_id = %s
-                AND ub.contrato_id = %s 
                 AND u.estado = 'livre'  -- Add this condition to filter by estado
+                AND (
+                    (%s = 1 AND (ub.contrato_id = 1 OR ub.contrato_id = 3))  -- If contrato_tipo is 1, match 1 and 3
+                    OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  -- If contrato_tipo is 2, match 2 and 3
+                    OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  -- If contrato_tipo is 3, match all
+                )
                 ORDER BY u.nota_final DESC;
             """
-            candidates = execute_query(query, (bolsa_id, escola_id, contrato_tipo))
+
+            # Execute the query by passing the bolsa_id, escola_id, and contrato_tipo three times (once for each condition in the query)
+            candidates = execute_query(query, (bolsa_id, escola_id, contrato_tipo, contrato_tipo, contrato_tipo))
             print(f"Candidatos encontrados para {escola_nome}: {candidates}")
 
             # Separate candidates based on disability and ensure they are not already selected
@@ -370,7 +379,7 @@ def submit_selection():
     print(f"Candidatos selecionados: {candidates_by_school}")
 
     # Return the selected candidates to the results page
-    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola)
+    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola,date_today=date_today,contrato_tipo=contrato_tipo)
 
 
 @app.route('/send_email', methods=['POST'])
