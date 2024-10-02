@@ -279,107 +279,89 @@ def selection_page():
 @app.route('/submit_selection', methods=['POST'])
 def submit_selection():
     bolsa_id = request.form['ilha']
-    print(f"Bolsa ID: {bolsa_id}")
     date_today = date.today()
     
-    escolas_data = request.form.getlist('escolas[]')  # Get the list of selected schools
+    escolas_data = request.form.getlist('escolas[]')  # Lista de escolas selecionadas com vagas
     vagas_per_escola = {}
 
-    # Capture the number of vacancies for each selected school
+    # Captura o número de vagas para cada escola selecionada
     for escola_data in escolas_data:
         escola_nome, vagas_normais, vaga_deficiencia = escola_data.split(':')
         vagas_per_escola[escola_nome] = {
             'vagas_normais': int(vagas_normais),
             'vaga_deficiencia': vaga_deficiencia
         }
-        print(f"Escola: {escola_nome}, Vagas Normais: {vagas_normais}, Vaga Deficiência: {vaga_deficiencia}")
 
     contrato_tipo = request.form['contrato_id']
-    print(f"Tipo de Contrato: {contrato_tipo}")
+    
+    # Busca todos os candidatos, ordenados por nota final e prioridade
+    query = """
+        SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ue.escola_id, e.nome AS escola_nome
+        FROM Users u
+        JOIN userbolsas ub ON u.id = ub.user_id
+        JOIN user_escola ue ON u.id = ue.user_id
+        JOIN Escola e ON ue.escola_id = e.id
+        WHERE ub.Bolsa_id = %s
+        AND u.estado = 'livre'
+        AND (
+            (%s = 1 AND (ub.contrato_id = 1 OR ub.contrato_id = 3))  -- Se contrato_tipo for 1, pegar 1 e 3
+            OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  -- Se contrato_tipo for 2, pegar 2 e 3
+            OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  -- Se contrato_tipo for 3, pegar todos
+        )
+        ORDER BY u.nota_final DESC, ue.escola_priority_id ASC;
+    """
+    candidates = execute_query(query, (bolsa_id, contrato_tipo, contrato_tipo, contrato_tipo))
 
-    selected_candidates = set()  # To track selected candidates
-    candidates_by_school = {}  # To hold candidates by school
+    # Inicializar estrutura para armazenar candidatos selecionados
+    selected_candidates = set()
+    candidates_by_school = {}
 
-    # Loop through each selected school and fetch candidates for each
-    for escola_nome, vagas_info in vagas_per_escola.items():
-        # Fetch the escola_id based on the escola_nome
-        query = """
-            SELECT id 
-            FROM Escola 
-            WHERE nome = %s
-        """
-        escola_id_result = execute_query(query, (escola_nome,))
-        
-        if escola_id_result:
-            escola_id = escola_id_result[0]['id']
-            print(f"Escola ID: {escola_id}")
+    # Iniciar processo de alocação por candidato e escola
+    for candidate in candidates:
+        candidato_id = candidate['candidato_id']
+        candidato_nome = candidate['nome']
+        candidato_nota = candidate['nota_final']
+        candidato_priority = candidate['escola_priority_id']
+        candidato_escola_nome = candidate['escola_nome']
 
-            # Fetch candidates for this school and bolsa
-            # Modified part of the query to handle contrato_tipo logic
-            query = """
-                SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ub.contrato_id
-                FROM Users u
-                JOIN userbolsas ub ON u.id = ub.user_id
-                JOIN user_escola ue ON u.id = ue.user_id
-                WHERE ub.Bolsa_id = %s
-                AND ue.escola_id = %s
-                AND u.estado = 'livre'  -- Add this condition to filter by estado
-                AND (
-                    (%s = 1 AND (ub.contrato_id = 1 OR ub.contrato_id = 3))  -- If contrato_tipo is 1, match 1 and 3
-                    OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  -- If contrato_tipo is 2, match 2 and 3
-                    OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  -- If contrato_tipo is 3, match all
-                )
-                ORDER BY u.nota_final DESC;
-            """
-
-            # Execute the query by passing the bolsa_id, escola_id, and contrato_tipo three times (once for each condition in the query)
-            candidates = execute_query(query, (bolsa_id, escola_id, contrato_tipo, contrato_tipo, contrato_tipo))
-            print(f"Candidatos encontrados para {escola_nome}: {candidates}")
-
-            # Separate candidates based on disability and ensure they are not already selected
-            def_candidates = [c for c in candidates if c['deficiencia'] == 'sim' and c['candidato_id'] not in selected_candidates]
-            normal_candidates = [c for c in candidates if c['deficiencia'] == 'nao' and c['candidato_id'] not in selected_candidates]
-
+        # Verificar se a escola do candidato tem vaga e se ele ainda não foi selecionado
+        if candidato_escola_nome in vagas_per_escola and candidato_id not in selected_candidates:
+            vagas_info = vagas_per_escola[candidato_escola_nome]
             normal_vagas = vagas_info['vagas_normais']
-            def_vagas = 0
+            def_vagas = vagas_info['vaga_deficiencia']
 
-            if vagas_info['vaga_deficiencia'] == "sim":
-                # Select only candidates with disabilities
-                selected_def = def_candidates[:normal_vagas]
-                selected_candidates.update(c['candidato_id'] for c in selected_def)
-                candidates_by_school[escola_nome] = selected_def
-            else:
-                # Distribute vacancies between candidates with and without disabilities
-                if normal_vagas >= 3 and normal_vagas <= 10:
-                    def_vagas = 1
-                elif normal_vagas > 10:
-                    def_vagas = int(normal_vagas * 0.2)
+            # Escolher para vaga de deficiência ou normal, com base na disponibilidade
+            if def_vagas == "sim" and candidate['deficiencia'] == 'sim':
+                if normal_vagas > 0:
+                    # Alocar candidato para a vaga de deficiência
+                    if candidato_escola_nome not in candidates_by_school:
+                        candidates_by_school[candidato_escola_nome] = []
+                    candidates_by_school[candidato_escola_nome].append(candidate)
+                    selected_candidates.add(candidato_id)
+                    vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1  # Atualizar número de vagas
+            elif normal_vagas > 0:
+                # Alocar candidato para a vaga normal
+                if candidato_escola_nome not in candidates_by_school:
+                    candidates_by_school[candidato_escola_nome] = []
+                candidates_by_school[candidato_escola_nome].append(candidate)
+                selected_candidates.add(candidato_id)
+                vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1  # Atualizar número de vagas
 
-                # Select normal candidates
-                selected_normal = normal_candidates[:normal_vagas - def_vagas]
-                selected_candidates.update(c['candidato_id'] for c in selected_normal)
+    # Gerar a tabela de candidatos selecionados por escola
+    print("Candidatos alocados por escola:")
+    for escola_nome, candidatos in candidates_by_school.items():
+        print(f"\nEscola: {escola_nome}")
+        print("-" * 60)
+        print("{:<20} {:<20} {:<15}".format("Nome", "Nota Final", "Prioridade"))
+        for candidato in candidatos:
+            print("{:<20} {:<20} {:<15}".format(
+                candidato['nome'],
+                str(candidato['nota_final']),
+                str(candidato['escola_priority_id'])
+            ))
 
-                # Select candidates with disabilities
-                selected_def = def_candidates[:def_vagas] if def_vagas > 0 else []
-                selected_candidates.update(c['candidato_id'] for c in selected_def)
-
-                # Combine selected candidates
-                candidates_by_school[escola_nome] = selected_normal + selected_def
-
-            # Update the status of selected candidates to "a aguardar resposta"
-            for selected_candidate in selected_candidates:
-                update_query = """
-                    UPDATE Users
-                    SET estado = 'a aguardar resposta'
-                    WHERE id = %s
-                """
-                execute_update(update_query, (selected_candidate,))
-                print(f"Updated status for candidate {selected_candidate} to 'a aguardar resposta'.")
-
-    print(f"Candidatos selecionados: {candidates_by_school}")
-
-    # Return the selected candidates to the results page
-    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola,date_today=date_today,contrato_tipo=contrato_tipo)
+    # Retornar o resultado
+    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola, date_today=date_today, contrato_tipo=contrato_tipo)
 
 
 @app.route('/send_email', methods=['POST'])

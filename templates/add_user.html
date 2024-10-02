@@ -73,17 +73,17 @@
         
                     <div class="form-group">
                         <label for="avaliacao_curricular">Avaliação Curricular:</label>
-                        <input type="text" id="avaliacao_curricular" name="avaliacao_curricular">
+                        <input type="number" id="avaliacao_curricular" name="avaliacao_curricular" step="0.01" oninput="calculateNotaFinal()">
                     </div>
-        
+                    
                     <div class="form-group">
                         <label for="prova_de_conhecimentos">Prova de Conhecimentos:</label>
-                        <input type="text" id="prova_de_conhecimentos" name="prova_de_conhecimentos">
+                        <input type="number" id="prova_de_conhecimentos" name="prova_de_conhecimentos" step="0.01" oninput="calculateNotaFinal()">
                     </div>
-        
+                    
                     <div class="form-group">
                         <label for="nota_final">Nota Final:</label>
-                        <input type="number" id="nota_final" name="nota_final" step="0.01">
+                        <input type="number" id="nota_final" name="nota_final" step="0.01" readonly>
                     </div>
         
                     <div class="form-group">
@@ -206,5 +206,17 @@
             updateOrder();
         });
     });
+</script>
+<script>
+    function calculateNotaFinal() {
+        const avaliacaoCurricular = parseFloat(document.getElementById('avaliacao_curricular').value) || 0;
+        const provaConhecimentos = parseFloat(document.getElementById('prova_de_conhecimentos').value) || 0;
+        
+        // Calculate the average
+        const notaFinal = (avaliacaoCurricular + provaConhecimentos) / 2;
+
+        // Set the calculated value in the 'nota_final' field
+        document.getElementById('nota_final').value = notaFinal.toFixed(2); // Rounded to 2 decimal places
+    }
 </script>
 </html>
