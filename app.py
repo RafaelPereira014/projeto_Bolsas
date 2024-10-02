@@ -265,11 +265,11 @@ def selection_page():
     cursor = connection.cursor()
 
     # Fetch the list of schools from the database
-    cursor.execute("SELECT id, nome FROM escola")
+    cursor.execute("SELECT id, nome FROM Escola")
     escolas = cursor.fetchall()
 
     # Fetch the list of bolsas from the database (if you have it)
-    cursor.execute("SELECT id, nome FROM bolsa")
+    cursor.execute("SELECT id, nome FROM Bolsa")
     bolsas = cursor.fetchall()
 
     connection.close()
