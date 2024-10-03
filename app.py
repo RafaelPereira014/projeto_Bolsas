@@ -287,11 +287,18 @@ def submit_selection():
 
     # Captura o número de vagas para cada escola selecionada
     for escola_data in escolas_data:
-        escola_nome, vagas_normais, vaga_deficiencia = escola_data.split(':')
+        escola_nome, vagas_normais = escola_data.split(':')
         vagas_per_escola[escola_nome] = {
             'vagas_normais': int(vagas_normais),
-            'vaga_deficiencia': vaga_deficiencia
+            'vagas_deficiencia_obrigatorias': 0
         }
+
+        # Definir o número de vagas obrigatórias para candidatos com deficiência
+        total_vagas = vagas_per_escola[escola_nome]['vagas_normais']
+        if total_vagas >= 3 and total_vagas < 10:
+            vagas_per_escola[escola_nome]['vagas_deficiencia_obrigatorias'] = 1
+        elif total_vagas >= 10:
+            vagas_per_escola[escola_nome]['vagas_deficiencia_obrigatorias'] = int(0.2 * total_vagas)
 
     contrato_tipo = request.form['contrato_id']
     distribuicao = request.form['distribuicao']
@@ -325,29 +332,34 @@ def submit_selection():
         candidato_nota = candidate['nota_final']
         candidato_priority = candidate['escola_priority_id']
         candidato_escola_nome = candidate['escola_nome']
+        candidato_deficiencia = candidate['deficiencia']
 
         # Verificar se a escola do candidato tem vaga e se ele ainda não foi selecionado
         if candidato_escola_nome in vagas_per_escola and candidato_id not in selected_candidates:
             vagas_info = vagas_per_escola[candidato_escola_nome]
             normal_vagas = vagas_info['vagas_normais']
-            def_vagas = vagas_info['vaga_deficiencia']
+            vagas_deficiencia_obrigatorias = vagas_info['vagas_deficiencia_obrigatorias']
 
-            # Escolher para vaga de deficiência ou normal, com base na disponibilidade
-            if def_vagas == "sim" and candidate['deficiencia'] == 'sim':
-                if normal_vagas > 0:
-                    # Alocar candidato para a vaga de deficiência
-                    if candidato_escola_nome not in candidates_by_school:
-                        candidates_by_school[candidato_escola_nome] = []
-                    candidates_by_school[candidato_escola_nome].append(candidate)
-                    selected_candidates.add(candidato_id)
-                    vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1  # Atualizar número de vagas
-            elif normal_vagas > 0:
-                # Alocar candidato para a vaga normal
+            # Verificar se o candidato tem deficiência e se há vagas para isso
+            if candidato_deficiencia == 'sim' and vagas_deficiencia_obrigatorias > 0:
+                # Alocar candidato para vaga de deficiência
                 if candidato_escola_nome not in candidates_by_school:
                     candidates_by_school[candidato_escola_nome] = []
                 candidates_by_school[candidato_escola_nome].append(candidate)
                 selected_candidates.add(candidato_id)
-                vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1  # Atualizar número de vagas
+
+                # Atualizar o número de vagas de deficiência restantes
+                vagas_per_escola[candidato_escola_nome]['vagas_deficiencia_obrigatorias'] -= 1
+
+            elif normal_vagas > 0:
+                # Alocar candidato para vaga normal
+                if candidato_escola_nome not in candidates_by_school:
+                    candidates_by_school[candidato_escola_nome] = []
+                candidates_by_school[candidato_escola_nome].append(candidate)
+                selected_candidates.add(candidato_id)
+
+                # Atualizar o número de vagas normais restantes
+                vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1
 
     # Gerar a tabela de candidatos selecionados por escola
     print("Candidatos alocados por escola:")
@@ -361,13 +373,13 @@ def submit_selection():
             SET estado = 'a aguardar resposta', distribuicao = %s
             WHERE id = %s
             """
-            Insert_query2 = """
-            INSERT Colocados 
-            SET user_id=%s,bolsa_id=%s,escola_nome=%s,contrato_id=%s,escola_priority_id=%s
+            insert_query2 = """
+            INSERT INTO Colocados (user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id)
+            VALUES (%s, %s, %s, %s, %s)
             """
             # Atualizar pelo candidato_id
             execute_update(update_query, (distribuicao, candidato['candidato_id']))
-            execute_insert(Insert_query2,(candidato['candidato_id'],bolsa_id,candidato['escola_nome'],contrato_tipo,candidato['escola_priority_id']))
+            execute_insert(insert_query2, (candidato['candidato_id'], bolsa_id, candidato['escola_nome'], contrato_tipo, candidato['escola_priority_id']))
             print("{:<20} {:<20} {:<15}".format(
                 candidato['nome'],
                 str(candidato['nota_final']),
