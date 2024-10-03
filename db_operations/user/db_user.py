@@ -90,3 +90,38 @@ def user_infos(user_id):
     finally:
         cursor.close()
         connection.close()
+
+
+def get_colocados_by_user_id(user_id):
+    connection = connect_to_database()  # Make sure this function is defined elsewhere
+    cursor = connection.cursor()
+
+    try:
+        query = """
+        SELECT id, user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id 
+        FROM Colocados 
+        WHERE user_id = %s
+        """
+        cursor.execute(query, (user_id,))
+        results = cursor.fetchall()
+
+        colocados_list = []
+        for row in results:
+            colocados_list.append({
+                "id": row[0],
+                "user_id": row[1],
+                "bolsa_id": row[2],
+                "escola_nome": row[3],
+                "contrato_id": row[4],
+                "escola_priority_id": row[5],
+            })
+
+        return colocados_list
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return []  # Return an empty list in case of an error
+
+    finally:
+        cursor.close()
+        connection.close()

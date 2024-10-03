@@ -119,9 +119,10 @@ def minhaconta():
 @app.route('/user_profile/<int:user_id>', methods=['GET', 'POST'])
 def user_profile(user_id):
     user_info = user_infos(user_id)  # Now retrieves information for all users
+    colocados= get_colocados_by_user_id(user_id)
     
     
-    return render_template('user_profile.html', user_info=user_info)
+    return render_template('user_profile.html', user_info=user_info,colocados=colocados)
 
 import os
 from flask import request, redirect, url_for, flash

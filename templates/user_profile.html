@@ -100,18 +100,34 @@
                 <div class="current-bolsa-section">
                     <h3>Bolsa Atual</h3>
                     <table>
-                        <tr>
-                            <th>Bolsa Colocado:</th>
-                            <td>{{ user_info.bolsa_colocado }}</td>
-                        </tr>
-                        <tr>
-                            <th>Escola Colocado:</th>
-                            <td>{{ user_info.escola_colocado }}</td>
-                        </tr>
-                        <tr>
-                            <th>Contrato ID:</th>
-                            <td>{{ user_info.contrato_id }}</td>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Bolsa ID</th>
+                                <th>Escola Nome</th>
+                                <th>Contrato ID</th>
+                                <th>Escola Priority ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if colocados %}
+                                {% for colocado in colocados %}
+                                    <tr>
+                                        <td>{{ colocado.id }}</td>
+                                        <td>{{ colocado.user_id }}</td>
+                                        <td>{{ colocado.bolsa_id }}</td>
+                                        <td>{{ colocado.escola_nome }}</td>
+                                        <td>{{ colocado.contrato_id }}</td>
+                                        <td>{{ colocado.escola_priority_id }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6">No data available for this user</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
                     </table>
                 </div>
             {% endif  %}
