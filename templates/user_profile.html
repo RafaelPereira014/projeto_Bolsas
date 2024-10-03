@@ -142,4 +142,36 @@
                     <thead>
                         <tr>
                             <th>Documentos</th>
-    
+                            <th>Ações</th> <!-- New header for actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in user_info.documentos %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('static', filename='uploads/' + doc.file_name) }}" download>{{ doc.file_name }}</a>
+                            </td>
+                            <td>
+                                <form method="POST" action="/remove_document/{{ user_info.id }}/{{ doc.file_name }}">
+                                    <button type="submit">Remover</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="additional-info">
+                <h3>Informações Adicionais</h3>
+                <table>
+                    
+                </table>
+            </div>
+        </div>
+        <footer>
+            <p>© 2024 - Gestor de Bolsas</p>
+        </footer>
+    </div>
+</body>
+</html>
