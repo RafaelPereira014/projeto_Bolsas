@@ -97,6 +97,40 @@ INSERT INTO `Bolsa_Escola` VALUES (1,43),(1,44),(1,45),(1,46),(1,47),(1,48),(1,4
 UNLOCK TABLES;
 
 --
+-- Table structure for table `Colocados`
+--
+
+DROP TABLE IF EXISTS `Colocados`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Colocados` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `bolsa_id` int NOT NULL,
+  `escola_nome` varchar(255) NOT NULL,
+  `contrato_id` int NOT NULL,
+  `escola_priority_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `bolsa_id` (`bolsa_id`),
+  KEY `contrato_id` (`contrato_id`),
+  CONSTRAINT `colocados_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`),
+  CONSTRAINT `colocados_ibfk_2` FOREIGN KEY (`bolsa_id`) REFERENCES `userbolsas` (`Bolsa_id`),
+  CONSTRAINT `colocados_ibfk_3` FOREIGN KEY (`contrato_id`) REFERENCES `contrato` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Colocados`
+--
+
+LOCK TABLES `Colocados` WRITE;
+/*!40000 ALTER TABLE `Colocados` DISABLE KEYS */;
+INSERT INTO `Colocados` VALUES (13,41,1,'EBI DA RIBEIRA GRANDE',3,1),(14,39,1,'EBI DA RIBEIRA GRANDE',3,1),(15,36,1,'EBS NORDESTE',3,1),(16,35,1,'EBI DA MAIA',3,2),(17,40,1,'EBI DA MAIA',3,1),(18,37,1,'EBI DE ARRIFES',3,1);
+/*!40000 ALTER TABLE `Colocados` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `contrato`
 --
 
@@ -246,6 +280,7 @@ CREATE TABLE `Users` (
   `nota_final` decimal(5,2) DEFAULT NULL,
   `estado` enum('livre','a aguardar resposta','negado','aceite') DEFAULT NULL,
   `observacoes` text,
+  `distribuicao` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -256,7 +291,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-INSERT INTO `Users` VALUES (35,'João Rodrigues','0910923','nao','15','15',15.00,'livre','.'),(36,'António Flores','123','nao','17','14',15.50,'livre','.'),(37,'Diogo Reis','000','nao','18','11',14.50,'livre','.'),(38,'Paula Pires','05','sim','15','11',13.00,'livre','.'),(39,'Rodrigo Pires','2','nao','14','14',14.00,'livre','.'),(40,'Ana Melo','3','nao','15.5','12',13.75,'livre','.'),(41,'carlos lopes','0123','nao','14','18',16.00,'livre','.');
+INSERT INTO `Users` VALUES (35,'João Rodrigues','0910923','nao','15','15',15.00,'livre','.','https://sgc123'),(36,'António Flores','123','nao','17','14',15.50,'livre','.','https://sgc123'),(37,'Diogo Reis','000','nao','18','11',14.50,'livre','.','https://sgc123'),(38,'Paula Pires','05','sim','15','11',13.00,'livre','.',NULL),(39,'Rodrigo Pires','2','nao','14','14',14.00,'livre','.','https://sgc123'),(40,'Ana Melo','3','nao','15.5','12',13.75,'livre','.','https://sgc123'),(41,'carlos lopes','0123','nao','14','18',16.00,'livre','.','https://sgc123');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -269,4 +304,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-02 17:22:25
+-- Dump completed on 2024-10-03 12:08:29
