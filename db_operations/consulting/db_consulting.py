@@ -122,7 +122,7 @@ def get_escolas_by_bolsa(user_ids, bolsa_id):
         FROM user_escola ue
         JOIN Bolsa_Escola be ON ue.escola_id = be.escola_id
         JOIN userbolsas ub ON ue.user_id = ub.user_id  -- Join with userbolsas to get contrato_id
-        JOIN escola e ON ue.escola_id = e.id  -- Join with escola to get school name
+        JOIN Escola e ON ue.escola_id = e.id  -- Join with escola to get school name
         WHERE ue.user_id IN ({placeholders}) AND be.bolsa_id = %s 
         """
         cursor.execute(query, (*user_ids, bolsa_id))  # Pass user_ids and bolsa_id as parameters
