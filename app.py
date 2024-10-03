@@ -360,8 +360,13 @@ def submit_selection():
             SET estado = 'a aguardar resposta', distribuicao = %s
             WHERE id = %s
             """
+            Insert_query2 = """
+            INSERT Colocados 
+            SET user_id=%s,bolsa_id=%s,escola_nome=%s,contrato_id=%s,escola_priority_id=%s
+            """
             # Atualizar pelo candidato_id
             execute_update(update_query, (distribuicao, candidato['candidato_id']))
+            execute_insert(Insert_query2,(candidato['candidato_id'],bolsa_id,candidato['escola_nome'],contrato_tipo,candidato['escola_priority_id']))
             print("{:<20} {:<20} {:<15}".format(
                 candidato['nome'],
                 str(candidato['nota_final']),

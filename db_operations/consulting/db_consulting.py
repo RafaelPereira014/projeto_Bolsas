@@ -20,6 +20,22 @@ def execute_update(query, params):
         cursor.close()
         connection.close()
 
+
+def execute_insert(query, params):
+    connection = connect_to_database()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(query, params)
+        connection.commit()  # Ensure changes are saved
+        print("Update successful")
+    except Exception as e:
+        connection.rollback()  # Rollback in case of error
+        print(f"Error executing update: {e}")
+    finally:
+        cursor.close()
+        connection.close()
+        
 def get_all_user_scores():
     connection = connect_to_database()
     cursor = connection.cursor()
