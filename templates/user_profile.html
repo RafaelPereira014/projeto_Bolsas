@@ -67,6 +67,12 @@
                             {% endif %}
                         </td>
                     </tr>
+                    {% if user_info.estado == "a aguardar resposta" or user_info.estado == "aceite" %}
+                    <tr>
+                        <th>Distribuição SGC:</th>
+                        <td>{{ user_info.distribuicao }}</td>
+                    </tr>
+                    {%endif%}
                 </table>
             </div>
             

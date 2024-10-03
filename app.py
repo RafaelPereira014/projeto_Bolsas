@@ -293,6 +293,7 @@ def submit_selection():
         }
 
     contrato_tipo = request.form['contrato_id']
+    distribuicao = request.form['distribuicao']
     
     # Busca todos os candidatos, ordenados por nota final e prioridade
     query = """
@@ -354,6 +355,13 @@ def submit_selection():
         print("-" * 60)
         print("{:<20} {:<20} {:<15}".format("Nome", "Nota Final", "Prioridade"))
         for candidato in candidatos:
+            update_query = """
+            UPDATE Users
+            SET estado = 'a aguardar resposta', distribuicao = %s
+            WHERE id = %s
+            """
+            # Atualizar pelo candidato_id
+            execute_update(update_query, (distribuicao, candidato['candidato_id']))
             print("{:<20} {:<20} {:<15}".format(
                 candidato['nome'],
                 str(candidato['nota_final']),
@@ -395,11 +403,24 @@ def send_email():
         return jsonify({"message": "Email sent successfully!"})
     except Exception as e:
         return jsonify({"message": "Failed to send email: " + str(e)}), 500
-
+    
 @app.route('/consulta')
 def metadatapage():
-    scores = get_all_user_scores()  # Retrieve user scores
-    return render_template('consulta.html', scores=scores)
+    search_query = request.args.get('search', '')  # Get search query if it exists
+    page = int(request.args.get('page', 1))  # Get current page, default is 1
+    per_page = 10  # Number of records per page
+
+    # Modify the query to search by name if a search term is provided
+    if search_query:
+        scores = get_filtered_user_scores(search_query, page, per_page)  # Fetch filtered results
+        total_count = get_filtered_user_count(search_query)  # Count total filtered results
+    else:
+        scores = get_all_user_scores(page, per_page)  # Fetch paginated results
+        total_count = get_total_user_count()  # Count total results
+
+    total_pages = (total_count + per_page - 1) // per_page  # Calculate total number of pages
+
+    return render_template('consulta.html', scores=scores, total_pages=total_pages, current_page=page, search_query=search_query, per_page=per_page, total_count=total_count)
 
 @app.route('/view_escolas/<int:user_id>/<int:bolsa_id>')
 def fetch_escolas(user_id, bolsa_id):

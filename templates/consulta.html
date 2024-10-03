@@ -70,40 +70,47 @@
 
         <div class="content">
             <h2>Tabela geral</h2>
+            <!--
+            <form method="GET" action="{{ url_for('metadatapage') }}">
+                <input type="text" name="search" placeholder="Search by name" value="{{ request.args.get('search', '') }}">
+                <button type="submit">Search</button>
+            </form>
+            -->
+            
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Nota Final</th>
-                        <th>Bolsa de Ilha de São Miguel</th>
-                        <th>Bolsa de Ilha Terceira</th>
-                        <th>Bolsa de Ilha Santa Maria</th>
-                        <th>Bolsa de Ilha Faial</th>
-                        <th>Bolsa de Ilha Pico</th>
-                        <th>Bolsa de Ilha S.Jorge</th>
-                        <th>Bolsa de Ilha Graciosa</th>
-                        <th>Bolsa de Ilha Flores</th>
-                        <th>Bolsa de Ilha Corvo</th>
-                        <th>Estado</th> <!-- Added Status Column -->
+                        <th><a href="{{ url_for('bolsa_sao_miguel') }}">Bolsa de Ilha de São Miguel</a></th>
+                        <th><a href="{{ url_for('bolsa_terceira') }}">Bolsa de Ilha Terceira</a></th>
+                        <th><a href="{{ url_for('bolsa_santa_maria') }}">Bolsa de Ilha Santa Maria</a></th>
+                        <th><a href="{{ url_for('bolsa_faial') }}">Bolsa de Ilha Faial</a></th>
+                        <th><a href="{{ url_for('bolsa_pico') }}">Bolsa de Ilha Pico</a></th>
+                        <th><a href="{{ url_for('bolsa_sao_jorge') }}">Bolsa de Ilha São Jorge</a></th>
+                        <th><a href="{{ url_for('bolsa_graciosa') }}">Bolsa de Ilha Graciosa</a></th>
+                        <th><a href="{{ url_for('bolsa_flores') }}">Bolsa de Ilha Flores</a></th>
+                        <th><a href="{{ url_for('bolsa_corvo') }}">Bolsa de Ilha Corvo</a></th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if scores %}
                         {% for score in scores %}
                         <tr>
-                            <td>{{ loop.index }}</td>
+                            <td>{{ loop.index + (current_page - 1) * per_page }}</td> <!-- Adjust index for pagination -->
                             <td><a href="{{ url_for('user_profile', user_id=score.id) }}">{{ score.nome }}</a></td>
                             <td>{{ score.nota_final }}</td>
-                            <td>{{ '✔️' if 1 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha São Miguel -->
-                            <td>{{ '✔️' if 2 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Terceira -->
-                            <td>{{ '✔️' if 3 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Santa Maria -->
-                            <td>{{ '✔️' if 4 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Faial -->
-                            <td>{{ '✔️' if 5 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Pico -->
-                            <td>{{ '✔️' if 6 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha São Jorge -->
-                            <td>{{ '✔️' if 7 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Graciosa -->
-                            <td>{{ '✔️' if 8 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Flores -->
-                            <td>{{ '✔️' if 9 in score.bolsa_ids else '❌' }}</td> <!-- Bolsa de Ilha Corvo -->
+                            <td>{{ '✔️' if 1 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 2 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 3 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 4 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 5 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 6 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 7 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 8 in score.bolsa_ids else '❌' }}</td>
+                            <td>{{ '✔️' if 9 in score.bolsa_ids else '❌' }}</td>
                             <td>
                             {% if score.estado == "livre" %}
                                 <i class="fas fa-check-circle" style="color: green;"></i> Livre
@@ -124,7 +131,20 @@
                     {% endif %}
                 </tbody>
             </table>
+            
+            <div>
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('metadatapage', page=current_page-1, search=search_query) }}">Previous</a>
+                {% endif %}
+                
+                Página {{ current_page }} de {{ total_pages }}
+                
+                {% if current_page * per_page < total_count %}
+                    <a href="{{ url_for('metadatapage', page=current_page+1, search=search_query) }}">Next</a>
+                {% endif %}
+            </div>
         </div>
+        
         <footer>
             <p>Footer content here.</p>
         </footer>

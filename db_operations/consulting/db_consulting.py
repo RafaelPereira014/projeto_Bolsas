@@ -191,3 +191,89 @@ def total_users():
     
     # Return the first element of the tuple
     return results[0] if results else 0  # Return 0 if results is None
+
+
+def get_total_user_count():
+    connection = connect_to_database()
+    if connection:
+        cursor = connection.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Users")
+        results = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return results[0] if results else 0
+    return 0
+
+def get_all_user_scores(page=1, per_page=10):
+    connection = connect_to_database()
+    cursor = connection.cursor()
+
+    try:
+        offset = (page - 1) * per_page  # Calculate the offset for pagination
+        query = """
+        SELECT u.id, u.nome, u.nota_final, u.estado, GROUP_CONCAT(ub.Bolsa_id) AS bolsa_ids
+        FROM Users u
+        LEFT JOIN userbolsas ub ON u.id = ub.user_id 
+        GROUP BY u.id
+        ORDER BY u.nota_final DESC
+        LIMIT %s OFFSET %s
+        """
+        cursor.execute(query, (per_page, offset))  # Pass parameters for pagination
+        results = cursor.fetchall()
+
+        scores = []
+        for row in results:
+            user_id = row[0]
+            bolsa_ids = row[4].split(',') if row[4] else []  # Adjust index to 4 for bolsa_ids
+            scores.append({
+                "id": user_id,
+                "nome": row[1],
+                "nota_final": row[2],
+                "estado": row[3],  # Correctly getting the estado field
+                "bolsa_ids": [int(bolsa_id) for bolsa_id in bolsa_ids],  # Convert to integers
+            })
+
+        return scores
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return []  # Return an empty list instead of None
+
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_filtered_user_scores(search_query, page, per_page):
+    connection = connect_to_database()
+    if connection:
+        cursor = connection.cursor()
+        offset = (page - 1) * per_page
+        search_query = f"%{search_query}%"
+        query = """
+        SELECT u.id, u.nome, u.nota_final, GROUP_CONCAT(ub.Bolsa_id) AS bolsa_ids, u.estado
+        FROM Users u
+        JOIN userbolsas ub ON u.id = ub.user_id
+        WHERE u.nome LIKE %s
+        GROUP BY u.id
+        ORDER BY u.nota_final DESC
+        LIMIT %s OFFSET %s
+        """
+        cursor.execute(query, (search_query, per_page, offset))
+        results = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return results
+    return []
+
+def get_filtered_user_count(search_query):
+    connection = connect_to_database()
+    if connection:
+        cursor = connection.cursor()
+        search_query = f"%{search_query}%"
+        query = "SELECT COUNT(*) FROM Users WHERE nome LIKE %s"
+        cursor.execute(query, (search_query,))
+        results = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return results[0] if results else 0
+    return 0
