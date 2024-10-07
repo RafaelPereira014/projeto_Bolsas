@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 import os
 import smtplib
 from django import db
-from flask import Flask, flash, redirect, request, jsonify, render_template, session, url_for
+from flask import Flask, flash, redirect, request, jsonify, render_template, send_from_directory, session, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from config import db_config
@@ -100,6 +100,49 @@ def logout():
     flash('You have been logged out', 'info')
     return redirect(url_for('login'))
 
+# # Route for handling document upload with bolsa_id
+@app.route('/upload_document_bolsa/<int:bolsa_id>', methods=['POST'])
+def upload_document_bolsa(bolsa_id):
+    file = request.files.get('document')
+
+    if not file or file.filename == '':
+        flash('No selected file')
+        return redirect(url_for('bolsa_terceira'))  # Redirect on failure
+
+    if file:
+        filename = file.filename  # Ensure safe filename
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)  # Save file to the uploads directory
+
+        # Check if the file already exists for this bolsa_id
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT COUNT(*) FROM listas WHERE bolsa_id = %s AND file_name = %s", (bolsa_id, filename))
+        exists = cursor.fetchone()[0]
+
+        if exists > 0:
+            cursor.close()
+            connection.close()
+            flash('File already exists')  # Inform the user
+            return redirect(url_for('bolsa_terceira'))  # Redirect on existing file
+
+        # Insert the filename and bolsa_id into the documents table
+        insert_query = """
+        INSERT INTO listas (bolsa_id, file_name) 
+        VALUES (%s, %s)
+        """
+        cursor.execute(insert_query, (bolsa_id, filename))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        # Redirect to bolsa_terceira to display the uploaded documents
+        return redirect(url_for('metadatapage'))  # Redirect to the bolsa page
+
+# Route for downloading the document
+@app.route('/uploads/<filename>')
+def download_document(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/minhaconta', methods=['GET', 'POST'])
 def minhaconta():
@@ -499,19 +542,15 @@ def bolsa_terceira():
     bolsa_id = 2
     user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
 
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+
     if not user_ids:
-        return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[], uploaded_documents=[])
 
     user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
-    
-
     escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    #print(escolas_bolsa)
-    #print(escolas_bolsa)
-    return render_template('/Bolsas/Terceira.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    
+    return render_template('/Bolsas/Terceira.html', user_info=user_info, escolas_bolsa=escolas_bolsa, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/SantaMaria')
 def bolsa_santa_maria():

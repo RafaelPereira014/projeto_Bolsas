@@ -43,6 +43,24 @@
 
         <div class="content">
             <h2>Bolsa de Ilha Terceira</h2>
+            <!-- Document Upload Form -->
+            <form action="/upload_document_bolsa/2" method="POST" enctype="multipart/form-data">
+                <label for="document"></label>
+                <input type="file" id="document" name="document" accept=".pdf,.doc,.docx,.txt">
+                <button type="submit">Upload</button>
+            </form>
+
+            <div class="uploaded-documents">
+                <h3>Documentos:</h3>
+                <ul>
+                    {% for document in uploaded_documents %}
+                        <li>
+                            <a href="{{ url_for('download_document', filename=document.filename) }}">{{ document.filename }} </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
             <table>
                 <thead>
                     <tr>
@@ -157,5 +175,39 @@
             alert('An error occurred while updating status');
         });
     }
+</script>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear the current list
+                const documentList = document.getElementById('documentList');
+                documentList.innerHTML = '';
+
+                // Append the new documents
+                data.documents.forEach(doc => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.filename; // Display the filename
+                    documentList.appendChild(li);
+                });
+            } else {
+                alert('Error uploading document: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while uploading the document');
+        });
+    });
 </script>
 </html>

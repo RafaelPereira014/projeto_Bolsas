@@ -293,3 +293,17 @@ def get_filtered_user_count(search_query):
         connection.close()
         return results[0] if results else 0
     return 0
+
+
+def get_uploaded_documents(bolsa_id):
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    # Use DISTINCT to ensure unique filenames
+    cursor.execute("SELECT DISTINCT file_name FROM listas WHERE bolsa_id = %s", (bolsa_id,))
+    documents = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    # Format the documents into a list of dictionaries
+    return [{'filename': doc[0]} for doc in documents]
