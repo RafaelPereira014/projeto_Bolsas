@@ -320,3 +320,26 @@ select:focus {
     text-decoration: underline; /* Underline on hover */
     color: #0056b3; /* Darker color on hover */
 }
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 16px;
+    background-color: #f1f1f1;
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.pagination a:hover {
+    background-color: #ddd;
+}
+
+.pagination span {
+    padding: 8px 16px;
+    margin: 0 5px;
+}

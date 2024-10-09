@@ -1,6 +1,8 @@
 from datetime import date
 from email.mime.text import MIMEText
 import os
+import os
+from flask import request, redirect, url_for, flash
 import smtplib
 from django import db
 from flask import Flask, flash, redirect, request, jsonify, render_template, send_from_directory, session, url_for
@@ -107,10 +109,11 @@ def upload_document_bolsa(bolsa_id):
 
     if not file or file.filename == '':
         flash('No selected file')
-        return redirect(url_for('bolsa_terceira'))  # Redirect on failure
+        return redirect(url_for('metadatapage'))  # Redirect on failure
 
     if file:
         filename = file.filename  # Ensure safe filename
+        print(filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)  # Save file to the uploads directory
 
@@ -124,7 +127,7 @@ def upload_document_bolsa(bolsa_id):
             cursor.close()
             connection.close()
             flash('File already exists')  # Inform the user
-            return redirect(url_for('bolsa_terceira'))  # Redirect on existing file
+            return redirect(url_for('metadatapage'))  # Redirect on existing file
 
         # Insert the filename and bolsa_id into the documents table
         insert_query = """
@@ -136,7 +139,6 @@ def upload_document_bolsa(bolsa_id):
         cursor.close()
         connection.close()
 
-        # Redirect to bolsa_terceira to display the uploaded documents
         return redirect(url_for('metadatapage'))  # Redirect to the bolsa page
 
 # Route for downloading the document
@@ -167,8 +169,7 @@ def user_profile(user_id):
     
     return render_template('user_profile.html', user_info=user_info,colocados=colocados)
 
-import os
-from flask import request, redirect, url_for, flash
+
 
 @app.route('/upload_document/<int:user_id>', methods=['POST'])
 def upload_document(user_id):
@@ -519,150 +520,322 @@ def update_status():
         cursor.close()
         conn.close()
 
+
 @app.route('/Bolsas/SaoMiguel')
 def bolsa_sao_miguel():
     bolsa_id = 1
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    #print(escolas_bolsa)
-    
-    return render_template('/Bolsas/SaoMiguel.html', user_info=user_info, escolas_bolsa=escolas_bolsa)
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/SaoMiguel.html', user_info=user_info, escolas_bolsa=escolas_bolsa, pagination=pagination,uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Terceira')
 def bolsa_terceira():
     bolsa_id = 2
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-
-    if not user_ids:
-        return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[], uploaded_documents=[])
-
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     
-    return render_template('/Bolsas/Terceira.html', user_info=user_info, escolas_bolsa=escolas_bolsa, uploaded_documents=uploaded_documents)
+    print(uploaded_documents)  # Debugging line to check uploaded documents
+    if not user_ids:
+        return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
+
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/Terceira.html', user_info=user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/SantaMaria')
 def bolsa_santa_maria():
     bolsa_id = 3
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/SantaMaria.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/SantaMaria.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/SantaMaria.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/SantaMaria.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Faial')
 def bolsa_faial():
     bolsa_id = 4
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/Faial.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Faial.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/Faial.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/Faial.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Pico')
 def bolsa_pico():
     bolsa_id = 5
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/Pico.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Pico.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/Pico.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/Pico.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/SaoJorge')
 def bolsa_sao_jorge():
     bolsa_id = 6
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/SaoJorge.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/SaoJorge.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/SaoJorge.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/SaoJorge.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Graciosa')
 def bolsa_graciosa():
     bolsa_id = 7
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/Graciosa.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Graciosa.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/Graciosa.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/Graciosa.html',user_info=user_info,escolas_bolsa=escolas_bolsa,pagination=pagination,uploaded_documents=uploaded_documents)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Flores')
 def bolsa_flores():
     bolsa_id = 8
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/Flores.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Flores.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/Flores.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/Flores.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
 
 @app.route('/Bolsas/Corvo')
 def bolsa_corvo():
     bolsa_id = 9
-    user_ids = has_bolsa(bolsa_id)  # This should now return a list of user IDs
+    page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
+    per_page = 10  # Number of users per page
 
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
+    uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
+    
     if not user_ids:
-        return render_template('/Bolsas/Corvo.html', user_info=[], escolas_bolsa=[])
+        return render_template('/Bolsas/Corvo.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
 
-    user_info = get_user_info(user_ids)  # Now retrieves information for all users
-    #print(user_info)
-    
-    
+    # Paginate user IDs
+    total_users = len(user_ids)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_user_ids = user_ids[start:end]
 
-    escolas_bolsa = get_escolas_by_bolsa(user_ids, bolsa_id)  # Make sure this also handles multiple IDs
-    return render_template('/Bolsas/Corvo.html',user_info=user_info,escolas_bolsa=escolas_bolsa)  # Adjust the template name accordingly
+    # Fetch user info and escolas for the current page of users
+    user_info = get_user_info(paginated_user_ids)
+    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+
+    # Calculate total number of pages
+    total_pages = (total_users + per_page - 1) // per_page
+
+    # Pagination control flags
+    pagination = {
+        'page': page,
+        'total_pages': total_pages,
+        'has_prev': page > 1,
+        'has_next': page < total_pages
+    }
+
+    return render_template('/Bolsas/Corvo.html',user_info=user_info,escolas_bolsa=escolas_bolsa,pagination=pagination,uploaded_documents=uploaded_documents)  # Adjust the template name accordingly
 
 
 

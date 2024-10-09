@@ -5,46 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/consulta.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome CSS -->
     <title>Bolsa de Ilha São Miguel</title>
-    <style>
-        /* Additional styles for status icons */
-        .status-approved {
-            color: green;
-        }
-        .status-rejected {
-            color: red;
-        }
-        .status-pending {
-            color: orange;
-        }
-        .status-icon {
-            margin-right: 5px;
-        }
-        /* Table row background colors based on status */
-        .row-approved {
-            background-color: #d4edda; /* Light green */
-        }
-        .row-rejected {
-            background-color: #f8d7da; /* Light red */
-        }
-        .row-pending {
-            background-color: #fff3cd; /* Light yellow */
-        }
-        
-    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Gestor de Bolsas de Ilha - São Miguel</h1>
+            <h1>Gestor de Bolsas de Ilha - São Miguel </h1>
         </header>
 
         <div class="sidebar">
+            
             <ul>
                 <li><a href="/mainpage">Página Principal</a></li>
                 <li><a href="/selectionpage">Seleção de Candidatos</a></li>
                 <li><a href="/consulta">Página de Dados</a></li>
+                
             </ul>
             <button class="toggle-button">Bolsas</button>
             <ul class="bolsas-menu">
@@ -63,10 +38,29 @@
                 <li><a href="/add_user">Adicionar candidato</a></li>
                 <li><a href="/logout">Terminar sessão</a></li>
             </ul>
+
         </div>
 
         <div class="content">
             <h2>Bolsa de Ilha São Miguel</h2>
+            <!-- Document Upload Form -->
+            <form action="/upload_document_bolsa/1" method="POST" enctype="multipart/form-data">
+                <label for="document"></label>
+                <input type="file" id="document" name="document" accept=".pdf,.doc,.docx,.txt">
+                <button type="submit">Upload</button>
+            </form>
+
+            <div class="uploaded-documents">
+                <h3>Documentos:</h3>
+                <ul>
+                    {% for document in uploaded_documents %}
+                        <li>
+                            <a href="{{ url_for('download_document', filename=document.filename) }}">{{ document.filename }} </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
             <table>
                 <thead>
                     <tr>
@@ -77,7 +71,7 @@
                         <th>Nota Final</th>
                         <th>Bolsa de Ilha São Miguel</th>
                         <th>CTFP</th>
-                        <th>Estado</th>
+                        <th>Estado</th> <!-- Added Status column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -105,11 +99,26 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <div class="pagination">
+                {% if pagination %}
+                    {% if pagination.has_prev %}
+                        <a href="{{ url_for('bolsa_sao_miguel', page=pagination.page - 1) }}">&laquo; Anterior</a>
+                    {% endif %}
+            
+                    <span>Página {{ pagination.page }} de {{ pagination.total_pages }}</span>
+            
+                    {% if pagination.has_next %}
+                        <a href="{{ url_for('bolsa_sao_miguel', page=pagination.page + 1) }}">Próxima &raquo;</a>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
+        
         <footer>
             <p>Footer content here.</p>
         </footer>
     </div>
+    
     
 </body>
 <!-- Popup Modal -->
@@ -136,7 +145,7 @@
         modalTitle.textContent = `Escolas e Prioridades de ${userName}`;
     
         // Fetch escolas for the selected user
-        fetch(`/view_escolas/${userId}/1`) // Update with your bolsa_id logic
+        fetch(`/view_escolas/${userId}/2`) // Update with your bolsa_id logic
             .then(response => response.json())
             .then(data => {
                 if (data && data.length) {
@@ -181,5 +190,39 @@
             alert('An error occurred while updating status');
         });
     }
+</script>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear the current list
+                const documentList = document.getElementById('documentList');
+                documentList.innerHTML = '';
+
+                // Append the new documents
+                data.documents.forEach(doc => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.filename; // Display the filename
+                    documentList.appendChild(li);
+                });
+            } else {
+                alert('Error uploading document: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while uploading the document');
+        });
+    });
 </script>
 </html>

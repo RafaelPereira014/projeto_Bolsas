@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/consulta.css') }}">
-
     <title>Bolsa de Ilha Santa Maria</title>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Gestor de Bolsas de Ilha - Santa Maria</h1>
+            <h1>Gestor de Bolsas de Ilha - Santa Maria </h1>
         </header>
 
         <div class="sidebar">
@@ -44,6 +43,24 @@
 
         <div class="content">
             <h2>Bolsa de Ilha Santa Maria</h2>
+            <!-- Document Upload Form -->
+            <form action="/upload_document_bolsa/3" method="POST" enctype="multipart/form-data">
+                <label for="document"></label>
+                <input type="file" id="document" name="document" accept=".pdf,.doc,.docx,.txt">
+                <button type="submit">Upload</button>
+            </form>
+
+            <div class="uploaded-documents">
+                <h3>Documentos:</h3>
+                <ul>
+                    {% for document in uploaded_documents %}
+                        <li>
+                            <a href="{{ url_for('download_document', filename=document.filename) }}">{{ document.filename }} </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
             <table>
                 <thead>
                     <tr>
@@ -54,10 +71,7 @@
                         <th>Nota Final</th>
                         <th>Bolsa de Ilha Santa Maria</th>
                         <th>CTFP</th>
-                        <th>Estado</th>
-                        
-                        
-                        <!-- Add more columns for other bolsas as needed -->
+                        <th>Estado</th> <!-- Added Status column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -84,6 +98,19 @@
                     </tr>
                     {% endfor %}
                 </tbody>
+                <div class="pagination">
+                    {% if pagination %}
+                        {% if pagination.has_prev %}
+                            <a href="{{ url_for('bolsa_santa_maria', page=pagination.page - 1) }}">&laquo; Anterior</a>
+                        {% endif %}
+                
+                        <span>Página {{ pagination.page }} de {{ pagination.total_pages }}</span>
+                
+                        {% if pagination.has_next %}
+                            <a href="{{ url_for('bolsa_santa_maria', page=pagination.page + 1) }}">Próxima &raquo;</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </table>
         </div>
         <footer>
@@ -116,7 +143,7 @@
         modalTitle.textContent = `Escolas e Prioridades de ${userName}`;
     
         // Fetch escolas for the selected user
-        fetch(`/view_escolas/${userId}/3`) // Update with your bolsa_id logic
+        fetch(`/view_escolas/${userId}/2`) // Update with your bolsa_id logic
             .then(response => response.json())
             .then(data => {
                 if (data && data.length) {
@@ -161,5 +188,39 @@
             alert('An error occurred while updating status');
         });
     }
+</script>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear the current list
+                const documentList = document.getElementById('documentList');
+                documentList.innerHTML = '';
+
+                // Append the new documents
+                data.documents.forEach(doc => {
+                    const li = document.createElement('li');
+                    li.textContent = doc.filename; // Display the filename
+                    documentList.appendChild(li);
+                });
+            } else {
+                alert('Error uploading document: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while uploading the document');
+        });
+    });
 </script>
 </html>

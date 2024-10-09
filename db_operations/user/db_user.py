@@ -125,3 +125,18 @@ def get_colocados_by_user_id(user_id):
     finally:
         cursor.close()
         connection.close()
+        
+        
+def count_users_by_bolsa(bolsa_id):
+    connection = connect_to_database()
+    cursor = connection.cursor()
+
+    query = """
+    SELECT COUNT(*) FROM listas WHERE bolsa_id = %s
+    """
+    cursor.execute(query, (bolsa_id,))
+    total = cursor.fetchone()[0]
+    cursor.close()
+    connection.close()
+
+    return total
