@@ -530,21 +530,25 @@ def bolsa_sao_miguel():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/SaoMiguel.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -557,7 +561,7 @@ def bolsa_sao_miguel():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/SaoMiguel.html', user_info=user_info, escolas_bolsa=escolas_bolsa, pagination=pagination,uploaded_documents=uploaded_documents)
+    return render_template('/Bolsas/SaoMiguel.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Terceira')
 def bolsa_terceira():
@@ -567,20 +571,23 @@ def bolsa_terceira():
 
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
     user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
-    
-    print(uploaded_documents)  # Debugging line to check uploaded documents
+
     if not user_ids:
         return render_template('/Bolsas/Terceira.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -593,7 +600,7 @@ def bolsa_terceira():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/Terceira.html', user_info=user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
+    return render_template('/Bolsas/Terceira.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/SantaMaria')
 def bolsa_santa_maria():
@@ -601,21 +608,25 @@ def bolsa_santa_maria():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/SantaMaria.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/SantaMaria.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -628,7 +639,7 @@ def bolsa_santa_maria():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/SantaMaria.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
+    return render_template('/Bolsas/SantaMaria.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Faial')
 def bolsa_faial():
@@ -636,21 +647,25 @@ def bolsa_faial():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/Faial.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/Faial.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -663,7 +678,7 @@ def bolsa_faial():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/Faial.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
+    return render_template('/Bolsas/Faial.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Pico')
 def bolsa_pico():
@@ -671,21 +686,25 @@ def bolsa_pico():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/Pico.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/Pico.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -698,7 +717,7 @@ def bolsa_pico():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/Pico.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
+    return render_template('/Bolsas/Pico.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/SaoJorge')
 def bolsa_sao_jorge():
@@ -706,21 +725,25 @@ def bolsa_sao_jorge():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/SaoJorge.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/SaoJorge.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -733,7 +756,7 @@ def bolsa_sao_jorge():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/SaoJorge.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
+    return render_template('/Bolsas/SaoJorge.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Graciosa')
 def bolsa_graciosa():
@@ -741,21 +764,25 @@ def bolsa_graciosa():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/Graciosa.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/Graciosa.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -768,7 +795,7 @@ def bolsa_graciosa():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/Graciosa.html',user_info=user_info,escolas_bolsa=escolas_bolsa,pagination=pagination,uploaded_documents=uploaded_documents)  # Adjust the template name accordingly
+    return render_template('/Bolsas/Graciosa.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Flores')
 def bolsa_flores():
@@ -776,21 +803,25 @@ def bolsa_flores():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/Flores.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/Flores.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -803,7 +834,7 @@ def bolsa_flores():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/Flores.html',user_info=user_info,escolas_bolsa=escolas_bolsa,uploaded_documents=uploaded_documents,pagination=pagination)  # Adjust the template name accordingly
+    return render_template('/Bolsas/Flores.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 @app.route('/Bolsas/Corvo')
 def bolsa_corvo():
@@ -811,21 +842,25 @@ def bolsa_corvo():
     page = request.args.get('page', 1, type=int)  # Get the page number, default to 1
     per_page = 10  # Number of users per page
 
-    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
     uploaded_documents = get_uploaded_documents(bolsa_id)  # Fetch uploaded documents for this bolsa_id
-    
-    if not user_ids:
-        return render_template('/Bolsas/Corvo.html', user_info=[], escolas_bolsa=[], pagination=None,uploaded_documents=uploaded_documents)
+    user_ids = has_bolsa(bolsa_id)  # Get the list of user IDs for the bolsa
 
-    # Paginate user IDs
-    total_users = len(user_ids)
+    if not user_ids:
+        return render_template('/Bolsas/Corvo.html', user_info=[], escolas_bolsa=[], pagination=None, uploaded_documents=uploaded_documents)
+
+    # Fetch all user info and sort by final grade before pagination
+    user_info = get_user_info(user_ids)
+    user_info_sorted = sorted(user_info, key=lambda x: x['nota_final'], reverse=True)
+
+    # Paginate the sorted user info
+    total_users = len(user_info_sorted)
     start = (page - 1) * per_page
     end = start + per_page
-    paginated_user_ids = user_ids[start:end]
+    paginated_user_info = user_info_sorted[start:end]
 
-    # Fetch user info and escolas for the current page of users
-    user_info = get_user_info(paginated_user_ids)
-    escolas_bolsa = get_escolas_by_bolsa(paginated_user_ids, bolsa_id)
+    # Fetch escolas for the current page of users
+    user_ids_paginated = [user['id'] for user in paginated_user_info]
+    escolas_bolsa = get_escolas_by_bolsa(user_ids_paginated, bolsa_id)
 
     # Calculate total number of pages
     total_pages = (total_users + per_page - 1) // per_page
@@ -838,7 +873,7 @@ def bolsa_corvo():
         'has_next': page < total_pages
     }
 
-    return render_template('/Bolsas/Corvo.html',user_info=user_info,escolas_bolsa=escolas_bolsa,pagination=pagination,uploaded_documents=uploaded_documents)  # Adjust the template name accordingly
+    return render_template('/Bolsas/Corvo.html', user_info=paginated_user_info, escolas_bolsa=escolas_bolsa, pagination=pagination, uploaded_documents=uploaded_documents)
 
 
 
