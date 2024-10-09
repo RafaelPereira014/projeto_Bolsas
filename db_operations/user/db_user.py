@@ -98,7 +98,7 @@ def get_colocados_by_user_id(user_id):
 
     try:
         query = """
-        SELECT id, user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id 
+        SELECT id, user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id,placement_date
         FROM Colocados 
         WHERE user_id = %s
         """
@@ -114,6 +114,7 @@ def get_colocados_by_user_id(user_id):
                 "escola_nome": row[3],
                 "contrato_id": row[4],
                 "escola_priority_id": row[5],
+                "placement_date": row[6],
             })
 
         return colocados_list

@@ -355,8 +355,12 @@ def submit_selection():
         JOIN userbolsas ub ON u.id = ub.user_id
         JOIN user_escola ue ON u.id = ue.user_id
         JOIN Escola e ON ue.escola_id = e.id
+        LEFT JOIN colocados c ON u.id = c.user_id  -- Left join with colocados to check the contrato_id
         WHERE ub.Bolsa_id = %s
-        AND u.estado = 'livre'
+        AND (
+            (u.estado = 'livre')  -- Normal case where estado is 'livre'
+            OR (u.estado = 'aceite' AND c.contrato_id = 2)  -- Special case where estado is 'aceite' and contrato_id is 2
+        )
         AND (
             (%s = 1 AND (ub.contrato_id = 1 OR ub.contrato_id = 3))  -- Se contrato_tipo for 1, pegar 1 e 3
             OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  -- Se contrato_tipo for 2, pegar 2 e 3
@@ -419,8 +423,8 @@ def submit_selection():
             WHERE id = %s
             """
             insert_query2 = """
-            INSERT INTO Colocados (user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id)
-            VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO Colocados (user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id, placement_date)
+                VALUES (%s, %s, %s, %s, %s, CURDATE())
             """
             # Atualizar pelo candidato_id
             execute_update(update_query, (distribuicao, candidato['candidato_id']))

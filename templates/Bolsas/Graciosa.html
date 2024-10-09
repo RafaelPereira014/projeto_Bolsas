@@ -57,7 +57,7 @@
                 <ul class="document-list">
                     {% for document in uploaded_documents %}
                         <li class="document-item">
-                            <a href="{{ url_for('download_document', filename=document.filename) }}">
+                            <a href="{{ url_for('static', filename='/uploads/' + document.filename) }}" download>
                                 <i class="{{ 'fas fa-file-pdf' if document.filename.endswith('.pdf') else 'fas fa-file-word' if document.filename.endswith('.docx') else 'fas fa-file-alt' }}"></i>
                                 {{ document.filename }}
                             </a>
@@ -65,7 +65,6 @@
                     {% endfor %}
                 </ul>
             </div>
-            
             <table>
                 <thead>
                     <tr>
