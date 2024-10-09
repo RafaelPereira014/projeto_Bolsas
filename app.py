@@ -105,6 +105,7 @@ def logout():
 # # Route for handling document upload with bolsa_id
 @app.route('/upload_document_bolsa/<int:bolsa_id>', methods=['POST'])
 def upload_document_bolsa(bolsa_id):
+    upload_folder = 'static/uploads'
     file = request.files.get('document')
 
     if not file or file.filename == '':
@@ -114,7 +115,7 @@ def upload_document_bolsa(bolsa_id):
     if file:
         filename = file.filename  # Ensure safe filename
         print(filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file_path = os.path.join(upload_folder, filename)
         file.save(file_path)  # Save file to the uploads directory
 
         # Check if the file already exists for this bolsa_id
