@@ -47,7 +47,7 @@ def user_infos(user_id):
         query = """
         SELECT u.id AS candidato_id, u.nome, u.contacto, u.avaliacao_curricular, 
                u.prova_de_conhecimentos, u.nota_final, ub.contrato_id, u.estado,
-               u.distribuicao, d.file_name, d.upload_date
+               u.distribuicao, u.deficiencia, d.file_name, d.upload_date
         FROM Users u
         JOIN userbolsas ub ON u.id = ub.user_id
         LEFT JOIN documents d ON u.id = d.user_id  -- Use LEFT JOIN to include users with no documents
@@ -68,15 +68,16 @@ def user_infos(user_id):
                 "contrato_id": result[0][6],
                 "estado": result[0][7],
                 "distribuicao": result[0][8],  # Include distribuicao
+                "deficiencia": result[0][9],  # Include deficiencia
                 "documentos": []  # Initialize an empty list for documents
             }
 
             # Populate the documentos list with file names and upload dates
             for row in result:
-                if row[9]:  # Check if file_name is not None
+                if row[10]:  # Check if file_name is not None
                     user_info["documentos"].append({
-                        "file_name": row[9],
-                        "upload_date": row[10]
+                        "file_name": row[10],
+                        "upload_date": row[11]
                     })
 
             return user_info
