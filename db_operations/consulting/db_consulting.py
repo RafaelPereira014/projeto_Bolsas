@@ -103,29 +103,27 @@ def has_bolsa(bolsa_id):
         connection.close()
 
 
-def get_escolas_by_bolsa(user_ids, bolsa_id):
+def get_escolas_by_bolsa(user_id, bolsa_id):
     # Create a database connection
     connection = connect_to_database()
     cursor = connection.cursor()
 
-    # Ensure user_ids is a list
-    if isinstance(user_ids, int):  # If a single integer is passed
-        user_ids = [user_ids]  # Wrap it in a list
-    elif not isinstance(user_ids, list):
-        raise ValueError("user_ids must be a list or an integer.")
-
     try:
-        # Prepare a placeholder string for multiple user_ids
-        placeholders = ', '.join(['%s'] * len(user_ids))
-        query = f"""
+        # Prepare a query string for a single user_id
+        query = """
         SELECT DISTINCT ue.user_id, ue.escola_id, ue.escola_priority_id, ub.contrato_id, e.nome AS escola_nome
         FROM user_escola ue
         JOIN Bolsa_Escola be ON ue.escola_id = be.escola_id
         JOIN userbolsas ub ON ue.user_id = ub.user_id  -- Join with userbolsas to get contrato_id
         JOIN Escola e ON ue.escola_id = e.id  -- Join with escola to get school name
-        WHERE ue.user_id IN ({placeholders}) AND be.bolsa_id = %s 
+        WHERE ue.user_id = %s AND be.bolsa_id = %s 
         """
-        cursor.execute(query, (*user_ids, bolsa_id))  # Pass user_ids and bolsa_id as parameters
+
+        # # Print the query and parameters for debugging
+        # print("Executing query:", query)
+        # print("With parameters:", (user_id, bolsa_id))
+
+        cursor.execute(query, (user_id, bolsa_id))  # Pass user_id and bolsa_id as parameters
         results = cursor.fetchall()
 
         # Return results as a list of dictionaries

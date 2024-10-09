@@ -486,7 +486,9 @@ def metadatapage():
 
 @app.route('/view_escolas/<int:user_id>/<int:bolsa_id>')
 def fetch_escolas(user_id, bolsa_id):
+    # print("User ID:", user_id)
     escolas = get_escolas_by_bolsa(user_id, bolsa_id)
+    # print("Fetched escolas:", escolas)  # This should show the fetched results
     return jsonify(escolas)  # Return JSON response
 
 @app.route('/get_escolas/<int:bolsa_id>', methods=['GET'])
