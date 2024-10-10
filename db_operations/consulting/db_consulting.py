@@ -206,6 +206,19 @@ def total_users():
     # Return the first element of the tuple
     return results[0] if results else 0  # Return 0 if results is None
 
+def total_colocados():
+    # Create a database connection
+    connection = connect_to_database()
+    cursor = connection.cursor()
+    
+    cursor.execute("SELECT COUNT(*) FROM Users where estado='aceite' ")
+    results = cursor.fetchone()
+    
+    cursor.close()
+    connection.close()
+    
+    # Return the first element of the tuple
+    return results[0] if results else 0  # Return 0 if results is None
 
 def get_total_user_count():
     connection = connect_to_database()

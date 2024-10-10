@@ -19,24 +19,34 @@
     width: 40%;  /* Adjust this to control the label size relative to the input */
     margin-right: 10px; /* Space between label and input */
     font-size: 1rem;
-    font-weight: 600; /* Make labels bold for better visibility */
+    font-weight: 600; /* Bold for better visibility */
+    color: #333333; /* Dark gray for label text */
 }
 
 /* Inputs and selects styling */
 .form-group input,
 .form-group select {
     width: 60%;  /* Adjust this to make inputs larger than labels */
-    padding: 8px; /* Padding inside the inputs */
-    border: 1px solid #ccc; /* Border style */
+    padding: 10px; /* Padding inside the inputs */
+    border: 1px solid #B2C2D8; /* Soft blue-gray border */
     border-radius: 4px; /* Rounded corners */
     font-size: 1rem;  /* Font size for the input text */
     box-sizing: border-box;  /* Ensure padding doesn't exceed the total width */
+    background-color: #FFFFFF; /* White background for inputs */
+    color: #2C3E50; /* Dark blue text inside inputs */
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #0056b3; /* Deep blue border on focus */
+    outline: none;
 }
 
 /* Styling for buttons */
 .form-group button {
     padding: 10px 20px;
-    background-color: #007BFF; /* Blue background for the button */
+    background-color: #007BFF; /* Bright blue background for the button */
     color: white;
     border: none;
     border-radius: 4px;

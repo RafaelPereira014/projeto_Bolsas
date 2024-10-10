@@ -11,6 +11,16 @@
 
     <title>Metadata page</title>
     <style>
+        /* Remove underline and change link color in table headers */
+        th a, td a {
+            text-decoration: none; /* Remove underline */
+            color: inherit; /* Use the color of the th */
+        }
+
+        th a:hover {
+            background-color: transparent; /* Remove hover effect */
+            color: inherit; /* Keep the same color on hover */
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -23,20 +33,13 @@
             text-align: left;
         }
 
-        th {
-            background-color: #007bff;
-            color: white;
-        }
+       
 
         .icon {
             margin-right: 5px;
         }
 
-        footer {
-            clear: both;
-            padding: 10px;
-            text-align: center;
-        }
+        
     </style>
 </head>
 <body>

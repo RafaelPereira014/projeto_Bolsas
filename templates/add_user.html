@@ -221,4 +221,10 @@
         document.getElementById('nota_final').value = notaFinal.toFixed(2); // Rounded to 2 decimal places
     }
 </script>
+<script>
+    document.querySelector('.toggle-button').addEventListener('click', function() {
+        const bolsasMenu = document.querySelector('.bolsas-menu');
+        bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>
 </html>

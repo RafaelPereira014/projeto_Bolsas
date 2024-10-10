@@ -300,8 +300,9 @@ def mainpage():
     no_bolsas = total_bolsas()
     no_escolas = total_escolas()
     no_users = total_users()
+    no_colocados = total_colocados()
     
-    return render_template('main.html',no_bolsas=no_bolsas,no_escolas=no_escolas,no_users=no_users)
+    return render_template('main.html',no_bolsas=no_bolsas,no_escolas=no_escolas,no_users=no_users,no_colocados=no_colocados)
 
 # Route for selection page (same layout as main page)
 @app.route('/selectionpage', methods=['GET', 'POST'])
