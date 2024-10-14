@@ -304,6 +304,22 @@ def mainpage():
     
     return render_template('main.html',no_bolsas=no_bolsas,no_escolas=no_escolas,no_users=no_users,no_colocados=no_colocados)
 
+@app.route('/limpar_estados', methods=['POST'])
+def limpar_estados():
+    connection = create_connection()
+    try:
+        with connection.cursor() as cursor:
+            # Update all rows to set estado to 'livre'
+            update_query = "UPDATE users SET estado = 'livre'"
+            cursor.execute(update_query)
+            connection.commit()
+    except Exception as e:
+        print(f"Error updating estados: {e}")
+    finally:
+        connection.close()
+    
+    return redirect(url_for('metadatapage'))  # Redirect back to the metadata page
+
 # Route for selection page (same layout as main page)
 @app.route('/selectionpage', methods=['GET', 'POST'])
 def selection_page():

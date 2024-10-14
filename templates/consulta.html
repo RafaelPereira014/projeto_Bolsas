@@ -39,6 +39,15 @@
             margin-right: 5px;
         }
 
+    
+        .search-container {
+            margin-top: 20px;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 20%;
+            box-sizing: border-box;
+        }
         
     </style>
 </head>
@@ -75,6 +84,13 @@
 
         <div class="content">
             <h2>Tabela geral</h2>
+            <form method="POST" action="{{ url_for('limpar_estados') }}">
+                <button type="submit" class="btn-limpar-estados">Limpar Estados</button>
+            </form>
+            <!-- Search bar -->
+            <div class="search-container">
+                <input type="text" id="search-bar" placeholder="Procurar por nome...">
+            </div>
             <!--
             <form method="GET" action="{{ url_for('metadatapage') }}">
                 <input type="text" name="search" placeholder="Search by name" value="{{ request.args.get('search', '') }}">
@@ -100,11 +116,11 @@
                         <th>Estado</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="table-body">
                     {% if scores %}
                         {% for score in scores %}
                         <tr>
-                            <td>{{ loop.index + (current_page - 1) * per_page }}</td> <!-- Adjust index for pagination -->
+                            <td>{{ loop.index + (current_page - 1) * per_page }}</td>
                             <td><a href="{{ url_for('user_profile', user_id=score.id) }}">{{ score.nome }}</a></td>
                             <td>{{ score.nota_final }}</td>
                             <td>{{ '✔️' if 1 in score.bolsa_ids else '❌' }}</td>
@@ -126,12 +142,12 @@
                             {% else %}
                                 <i class="fas fa-question-circle" style="color: gray;"></i> Estado Desconhecido
                             {% endif %}
-                        </td>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="13">No data available</td>
+                            <td colspan="4">No data available</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -159,6 +175,30 @@
     document.querySelector('.toggle-button').addEventListener('click', function() {
         const bolsasMenu = document.querySelector('.bolsas-menu');
         bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
+    });
+</script>
+<script>
+    // Function to filter table based on search input
+    document.getElementById('search-bar').addEventListener('input', function() {
+        const query = this.value.toLowerCase(); // Get the search query
+        const rows = document.querySelectorAll('#table-body tr'); // Select all table rows
+
+        // Debugging: Log the query
+        console.log('Search Query:', query);
+
+        // Loop through each row to filter based on the query
+        rows.forEach(row => {
+            const nameCell = row.cells[1].textContent.toLowerCase(); // Get the name cell content
+            // Debugging: Log the name being checked
+            console.log('Checking Name:', nameCell);
+
+            // Show or hide the row based on the search query
+            if (nameCell.includes(query)) {
+                row.style.display = ''; // Show row
+            } else {
+                row.style.display = 'none'; // Hide row
+            }
+        });
     });
 </script>
 </html>
