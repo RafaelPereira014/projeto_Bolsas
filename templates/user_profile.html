@@ -103,14 +103,13 @@
 
             
 
-            {% if user_info.estado == "aceite" %}
+            {% if user_info.estado == "aceite" or user_info.estado == "a aguardar resposta"%}
                 <div class="current-bolsa-section">
                     <h3>Bolsa Atual</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>User ID</th>
+                                <th>Estado</th>
                                 <th>Bolsa ID</th>
                                 <th>Escola Nome</th>
                                 <th>Contrato ID</th>
@@ -122,8 +121,7 @@
                             {% if colocados %}
                                 {% for colocado in colocados %}
                                     <tr>
-                                        <td>{{ colocado.id }}</td>
-                                        <td>{{ colocado.user_id }}</td>
+                                        <td>{{user_info.estado}}</td>
                                         <td>{{ colocado.bolsa_id }}</td>
                                         <td>{{ colocado.escola_nome }}</td>
                                         <td>{{ colocado.contrato_id }}</td>

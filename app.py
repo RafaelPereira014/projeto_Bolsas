@@ -327,36 +327,37 @@ def selection_page():
 def submit_selection():
     bolsa_id = request.form['ilha']
     date_today = date.today()
-    
-    escolas_data = request.form.getlist('escolas[]')  # Lista de escolas selecionadas com vagas
+
+    # Get the total number of candidates (numero de candidatos necessários)
+    total_vagas = int(request.form['numero'])
+
+    # Get the list of schools with vacancies
+    escolas_data = request.form.getlist('escolas[]')
     vagas_per_escola = {}
 
-    # Captura o número de vagas para cada escola selecionada
+    # Process each escola_data to capture vagas_normais and vagas_deficiencia
     for escola_data in escolas_data:
-        escola_nome, vagas_normais = escola_data.split(':')
+        # Assuming escola_data is formatted as 'escola_nome:vagas_normais:vagas_deficiencia'
+        escola_nome, vagas_normais, vagas_deficiencia = escola_data.split(':')
         vagas_per_escola[escola_nome] = {
             'vagas_normais': int(vagas_normais),
-            'vagas_deficiencia_obrigatorias': 0
+            'vagas_deficiencia_obrigatorias': int(vagas_deficiencia)
         }
 
-        # Definir o número de vagas obrigatórias para candidatos com deficiência
-        total_vagas = vagas_per_escola[escola_nome]['vagas_normais']
-        if total_vagas >= 3 and total_vagas < 10:
-            vagas_per_escola[escola_nome]['vagas_deficiencia_obrigatorias'] = 1
-        elif total_vagas >= 10:
-            vagas_per_escola[escola_nome]['vagas_deficiencia_obrigatorias'] = int(0.2 * total_vagas)
+        # Print the data to check if values are being captured correctly
+        print(f"Escola: {escola_nome}, Vagas Normais: {vagas_per_escola[escola_nome]['vagas_normais']}, Vagas Deficiência: {vagas_per_escola[escola_nome]['vagas_deficiencia_obrigatorias']}")
 
     contrato_tipo = request.form['contrato_id']
     distribuicao = request.form['distribuicao']
-    
-    # Busca todos os candidatos, ordenados por nota final e prioridade
+
+    # Continue with the logic for retrieving and processing candidates...
     query = """
         SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ue.escola_id, e.nome AS escola_nome
         FROM Users u
         JOIN userbolsas ub ON u.id = ub.user_id
         JOIN user_escola ue ON u.id = ue.user_id
         JOIN Escola e ON ue.escola_id = e.id
-        LEFT JOIN colocados c ON u.id = c.user_id  -- Left join with colocados to check the contrato_id
+        LEFT JOIN colocados c ON u.id = c.user_id
         WHERE ub.Bolsa_id = %s
         AND (
             (u.estado = 'livre')  -- Normal case where estado is 'livre'
@@ -390,9 +391,8 @@ def submit_selection():
             normal_vagas = vagas_info['vagas_normais']
             vagas_deficiencia_obrigatorias = vagas_info['vagas_deficiencia_obrigatorias']
 
-            # Verificar se o candidato tem deficiência e se há vagas para isso
+            # Alocar candidato com deficiência se há vagas para isso
             if candidato_deficiencia == 'sim' and vagas_deficiencia_obrigatorias > 0:
-                # Alocar candidato para vaga de deficiência
                 if candidato_escola_nome not in candidates_by_school:
                     candidates_by_school[candidato_escola_nome] = []
                 candidates_by_school[candidato_escola_nome].append(candidate)
@@ -410,6 +410,21 @@ def submit_selection():
 
                 # Atualizar o número de vagas normais restantes
                 vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1
+
+    # Lógica adicional: Se sobrar vagas de deficiência e não houver candidatos com deficiência, alocar candidatos normais
+    for escola_nome, vagas_info in vagas_per_escola.items():
+        while vagas_info['vagas_deficiencia_obrigatorias'] > 0:
+            for candidate in candidates:
+                if candidate['candidato_id'] not in selected_candidates and candidate['escola_nome'] == escola_nome:
+                    # Atribuir vaga de deficiência a um candidato normal
+                    if escola_nome not in candidates_by_school:
+                        candidates_by_school[escola_nome] = []
+                    candidates_by_school[escola_nome].append(candidate)
+                    selected_candidates.add(candidate['candidato_id'])
+
+                    # Reduzir o número de vagas de deficiência obrigatórias
+                    vagas_info['vagas_deficiencia_obrigatorias'] -= 1
+                    break
 
     # Gerar a tabela de candidatos selecionados por escola
     print("Candidatos alocados por escola:")
@@ -437,7 +452,7 @@ def submit_selection():
             ))
 
     # Retornar o resultado
-    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola, date_today=date_today, contrato_tipo=contrato_tipo)
+    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola, date_today=date_today, contrato_tipo=contrato_tipo,total_vagas=total_vagas,vagas_deficiencia=vagas_deficiencia)
 
 
 @app.route('/send_email', methods=['POST'])

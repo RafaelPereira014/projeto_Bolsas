@@ -201,7 +201,7 @@
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
                 hiddenInput.name = 'escolas[]'; // Array of selected schools
-                hiddenInput.value = `${selectedText}:${vagasInput}`; // Format: schoolName:vagas
+                hiddenInput.value = `${selectedText}:${vagasInput}:${vagasInput_deficiencia}`; // Format: schoolName:vagas
                 hiddenInputsContainer.appendChild(hiddenInput);
 
                 // Clear the school selection but keep the other inputs
