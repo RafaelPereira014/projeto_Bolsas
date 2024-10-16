@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="{{ url_for('static', filename='images/GBI.png') }}" type="image/png"> <!-- Favicon -->
 
-
     <title>Metadata page</title>
     <style>
         /* Remove underline and change link color in table headers */
@@ -21,6 +20,7 @@
             background-color: transparent; /* Remove hover effect */
             color: inherit; /* Keep the same color on hover */
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -33,13 +33,10 @@
             text-align: left;
         }
 
-       
-
         .icon {
             margin-right: 5px;
         }
 
-    
         .search-container {
             margin-top: 20px;
         }
@@ -48,7 +45,29 @@
             width: 20%;
             box-sizing: border-box;
         }
-        
+
+        /* Styling for filter buttons */
+        .filter-buttons {
+            margin-top: 10px;
+        }
+
+        .filter-buttons button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .filter-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .filter-buttons button.active {
+            background-color: #0056b3; /* Active button styling */
+        }
     </style>
 </head>
 <body>
@@ -84,20 +103,27 @@
 
         <div class="content">
             <h2>Tabela geral</h2>
-            <form method="POST" action="{{ url_for('limpar_estados') }}">
-                <button type="submit" class="btn-limpar-estados">Limpar Estados</button>
-            </form>
+            
+            <!-- Filter buttons for estados -->
+            <div class="filter-buttons">
+                <button data-estado="all" class="filter-button active">Todos</button>
+                <button data-estado="livre" class="filter-button">Livre</button>
+                <button data-estado="a aguardar resposta" class="filter-button">A Aguardar Resposta</button>
+                <button data-estado="aceite" class="filter-button">Aceite</button>
+            </div>
+
             <!-- Search bar -->
             <div class="search-container">
                 <input type="text" id="search-bar" placeholder="Procurar por nome...">
             </div>
-            <!--
-            <form method="GET" action="{{ url_for('metadatapage') }}">
-                <input type="text" name="search" placeholder="Search by name" value="{{ request.args.get('search', '') }}">
-                <button type="submit">Search</button>
-            </form>
-            -->
+
             
+            <form method="POST" action="{{ url_for('limpar_estados') }}">
+                <button type="submit" class="btn-limpar-estados">Limpar Estados</button>
+            </form>
+
+            
+
             <table>
                 <thead>
                     <tr>
@@ -119,7 +145,7 @@
                 <tbody id="table-body">
                     {% if scores %}
                         {% for score in scores %}
-                        <tr>
+                        <tr data-estado="{{ score.estado }}">
                             <td>{{ loop.index + (current_page - 1) * per_page }}</td>
                             <td><a href="{{ url_for('user_profile', user_id=score.id) }}">{{ score.nome }}</a></td>
                             <td>{{ score.nota_final }}</td>
@@ -132,6 +158,7 @@
                             <td>{{ '✔️' if 7 in score.bolsa_ids else '❌' }}</td>
                             <td>{{ '✔️' if 8 in score.bolsa_ids else '❌' }}</td>
                             <td>{{ '✔️' if 9 in score.bolsa_ids else '❌' }}</td>
+                            <!-- Add other bolsa columns as before -->
                             <td>
                             {% if score.estado == "livre" %}
                                 <i class="fas fa-check-circle" style="color: green;"></i> Livre
@@ -152,7 +179,7 @@
                     {% endif %}
                 </tbody>
             </table>
-            
+
             <div>
                 {% if current_page > 1 %}
                     <a href="{{ url_for('metadatapage', page=current_page-1, search=search_query) }}">Previous</a>
@@ -165,40 +192,53 @@
                 {% endif %}
             </div>
         </div>
-        
+
         <footer>
             <p>Footer content here.</p>
         </footer>
     </div>
 </body>
+
 <script>
+    // Toggle Bolsas menu
     document.querySelector('.toggle-button').addEventListener('click', function() {
         const bolsasMenu = document.querySelector('.bolsas-menu');
         bolsasMenu.style.display = bolsasMenu.style.display === 'block' ? 'none' : 'block';
     });
-</script>
-<script>
+
     // Function to filter table based on search input
     document.getElementById('search-bar').addEventListener('input', function() {
         const query = this.value.toLowerCase(); // Get the search query
         const rows = document.querySelectorAll('#table-body tr'); // Select all table rows
 
-        // Debugging: Log the query
-        console.log('Search Query:', query);
-
-        // Loop through each row to filter based on the query
         rows.forEach(row => {
             const nameCell = row.cells[1].textContent.toLowerCase(); // Get the name cell content
-            // Debugging: Log the name being checked
-            console.log('Checking Name:', nameCell);
+            row.style.display = nameCell.includes(query) ? '' : 'none'; // Show or hide row
+        });
+    });
 
-            // Show or hide the row based on the search query
-            if (nameCell.includes(query)) {
-                row.style.display = ''; // Show row
-            } else {
-                row.style.display = 'none'; // Hide row
-            }
+    // Filter table based on estado using filter buttons
+    const filterButtons = document.querySelectorAll('.filter-button');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const selectedEstado = this.getAttribute('data-estado');
+            const rows = document.querySelectorAll('#table-body tr');
+
+            // Remove active class from all buttons and add to the clicked button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            rows.forEach(row => {
+                const estado = row.getAttribute('data-estado');
+                // Show row if it matches the selected estado or if "Todos" is selected
+                if (selectedEstado === 'all' || estado === selectedEstado) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         });
     });
 </script>
+
 </html>
