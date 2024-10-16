@@ -310,7 +310,7 @@ def limpar_estados():
     try:
         with connection.cursor() as cursor:
             # Update all rows to set estado to 'livre'
-            update_query = "UPDATE users SET estado = 'livre'"
+            update_query = "UPDATE Users SET estado = 'livre'"
             cursor.execute(update_query)
             connection.commit()
     except Exception as e:

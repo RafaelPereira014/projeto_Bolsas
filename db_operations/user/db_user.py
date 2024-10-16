@@ -100,7 +100,7 @@ def get_colocados_by_user_id(user_id):
     try:
         query = """
         SELECT id, user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id,placement_date
-        FROM Colocados 
+        FROM colocados 
         WHERE user_id = %s
         """
         cursor.execute(query, (user_id,))
