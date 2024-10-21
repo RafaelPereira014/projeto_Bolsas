@@ -105,20 +105,20 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-                <div class="pagination">
-                    {% if pagination %}
-                        {% if pagination.has_prev %}
-                            <a href="{{ url_for('bolsa_faial', page=pagination.page - 1) }}">&laquo; Anterior</a>
-                        {% endif %}
-                
-                        <span>Página {{ pagination.page }} de {{ pagination.total_pages }}</span>
-                
-                        {% if pagination.has_next %}
-                            <a href="{{ url_for('bolsa_faial', page=pagination.page + 1) }}">Próxima &raquo;</a>
-                        {% endif %}
-                    {% endif %}
-                </div>
             </table>
+            <div class="pagination">
+                {% if pagination %}
+                    {% if pagination.has_prev %}
+                        <a href="{{ url_for('bolsa_faial', page=pagination.page - 1) }}">&laquo; Anterior</a>
+                    {% endif %}
+            
+                    <span>Página {{ pagination.page }} de {{ pagination.total_pages }}</span>
+            
+                    {% if pagination.has_next %}
+                        <a href="{{ url_for('bolsa_faial', page=pagination.page + 1) }}">Próxima &raquo;</a>
+                    {% endif %}
+                {% endif %}
+            </div>
         </div>
         <footer>
             <p>Footer content here.</p>
