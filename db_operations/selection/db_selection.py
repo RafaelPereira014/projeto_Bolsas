@@ -64,3 +64,36 @@ def execute_batch_insert(query, data):
         print(f"Error executing batch insert: {e}")
     finally:
         connection.close()
+        
+def get_candidates_by_bolsa(bolsa_id, contrato_tipo):
+    """
+    Retrieve candidates based on bolsa_id and contrato_tipo using a stored procedure.
+
+    :param bolsa_id: The ID of the bolsa.
+    :param contrato_tipo: The type of contract (1, 2, or 3).
+    :return: A list of candidates that match the criteria.
+    """
+    # Establish a database connection
+    conn = None
+    try:
+        conn = connect_to_database()  # Assuming you have a function to create a DB connection
+        cursor = conn.cursor(dictionary=True)
+        
+        # Call the stored procedure
+        cursor.callproc('GetCandidatesByBolsa', (bolsa_id, contrato_tipo))
+        
+        results = []
+        
+        # Iterate through the result sets returned by the stored procedure
+        for result in cursor.stored_results():
+            results.extend(result.fetchall())
+        
+        return results
+
+    except mysql.connector.Error as e:
+        print(f"Error: {e}")
+        return None
+    
+    finally:
+        if conn:
+            conn.close()
