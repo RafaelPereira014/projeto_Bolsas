@@ -41,3 +41,26 @@ def get_escolas_by_bolsa(bolsa_id):
         connection.close()
     
     return escolas
+
+
+def execute_batch_update(query, data):
+    connection = connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            cursor.executemany(query, data)
+        connection.commit()
+    except Exception as e:
+        print(f"Error executing batch update: {e}")
+    finally:
+        connection.close()
+
+def execute_batch_insert(query, data):
+    connection = connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            cursor.executemany(query, data)
+        connection.commit()
+    except Exception as e:
+        print(f"Error executing batch insert: {e}")
+    finally:
+        connection.close()
