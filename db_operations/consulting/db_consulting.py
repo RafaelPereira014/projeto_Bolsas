@@ -5,33 +5,41 @@ def connect_to_database():
     """Establishes a connection to the MySQL database."""
     return mysql.connector.connect(**db_config)
 
+def execute_query(query, params):
+    connection = connect_to_database()  # Assuming you have this function to connect to your database
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute(query, params)
+        results = cursor.fetchall()  # Fetch all results
+        return results
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        cursor.close()  # Close the cursor to avoid the "Unread result found" error
+        connection.close()
+
 def execute_update(query, params):
     connection = connect_to_database()
     cursor = connection.cursor()
-
     try:
         cursor.execute(query, params)
-        connection.commit()  # Ensure changes are saved
-        print("Update successful")
-    except Exception as e:
-        connection.rollback()  # Rollback in case of error
-        print(f"Error executing update: {e}")
+        connection.commit()  # Commit changes for update/insert queries
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        connection.rollback()  # Rollback in case of an error
     finally:
         cursor.close()
         connection.close()
 
-
 def execute_insert(query, params):
     connection = connect_to_database()
     cursor = connection.cursor()
-
     try:
         cursor.execute(query, params)
-        connection.commit()  # Ensure changes are saved
-        print("Update successful")
-    except Exception as e:
-        connection.rollback()  # Rollback in case of error
-        print(f"Error executing update: {e}")
+        connection.commit()  # Commit changes for update/insert queries
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        connection.rollback()
     finally:
         cursor.close()
         connection.close()

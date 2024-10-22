@@ -175,6 +175,8 @@
 
         document.getElementById('addSchoolBtn').addEventListener('click', function() {
             const escolaSelect = document.getElementById('escola');
+            const bolsaSelect = document.getElementById('ilha');
+            const selectedBolsa = bolsaSelect.value;
             const selectedValue = escolaSelect.value;
             const selectedText = escolaSelect.options[escolaSelect.selectedIndex].text;
             const vagasInput = document.getElementById('vagas_normais').value; // Get normal vagas_normais
@@ -201,7 +203,7 @@
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'hidden';
                 hiddenInput.name = 'escolas[]'; // Array of selected schools
-                hiddenInput.value = `${selectedText}:${vagasInput}:${vagasInput_deficiencia}`; // Format: schoolName:vagas
+                hiddenInput.value = `${selectedText}:${vagasInput}:${vagasInput_deficiencia}:${selectedBolsa}`; // Format: schoolName:vagas
                 hiddenInputsContainer.appendChild(hiddenInput);
 
                 // Clear the school selection but keep the other inputs

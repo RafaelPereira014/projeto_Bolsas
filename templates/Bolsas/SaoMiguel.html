@@ -126,6 +126,16 @@
         </footer>
     </div>
     
+    <!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeConfirmationModal()">&times;</span>
+        <h2>Confirmação</h2>
+        <p>Tem certeza de que deseja mudar o estado para "Negado"? Esta ação é irreversivel.</p>
+        <button id="confirmButton">Confirmar</button>
+        <button onclick="closeConfirmationModal()">Cancelar</button>
+    </div>
+</div>
     
 </body>
 <!-- Popup Modal -->
@@ -173,7 +183,24 @@
     }
 </script>
 <script>
+    let userIdToUpdate;
+    let newStatusToUpdate;
+
     function updateStatus(userId, newStatus) {
+        // Check if the new status is 'negado'
+        if (newStatus === 'negado') {
+            // Show confirmation modal
+            userIdToUpdate = userId;
+            newStatusToUpdate = newStatus;
+            document.getElementById('confirmationModal').style.display = 'block';
+            return; // Exit the function to prevent the fetch call
+        }
+
+        // Proceed with the status update
+        performStatusUpdate(userId, newStatus);
+    }
+
+    function performStatusUpdate(userId, newStatus) {
         fetch(`/update_status`, {
             method: 'POST',
             headers: {
@@ -187,16 +214,28 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Status updated successfully');
+                alert('Status atualizado com sucesso');
             } else {
-                alert('Error updating status');
+                alert('Erro ao atualizar o status');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while updating status');
+            console.error('Erro:', error);
+            alert('Ocorreu um erro ao atualizar o status');
         });
     }
+
+    // Close the confirmation modal
+    function closeConfirmationModal() {
+        document.getElementById('confirmationModal').style.display = 'none';
+        
+    }
+
+    // Confirm the update
+    document.getElementById('confirmButton').addEventListener('click', function() {
+        closeConfirmationModal(); // Hide modal
+        performStatusUpdate(userIdToUpdate, newStatusToUpdate); // Perform the update
+    });
 </script>
 
 <script>

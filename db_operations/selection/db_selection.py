@@ -7,6 +7,23 @@ def connect_to_database():
     """Establishes a connection to the MySQL database."""
     return mysql.connector.connect(**db_config)
 
+
+# Função para executar a consulta SQL
+def execute_query(query, params):
+    conn = connect_to_database()  # Criar a conexão
+    cursor = conn.cursor(dictionary=True)  # Para retornar resultados como dicionário
+    
+    try:
+        cursor.execute(query, params)  # Executar a query com os parâmetros
+        results = cursor.fetchall()  # Obter todos os resultados da consulta
+        return results
+    except mysql.connector.Error as err:
+        print(f"Erro: {err}")
+        return None
+    finally:
+        cursor.close()  # Fechar o cursor
+        conn.close()  # Fechar a conexão
+        
 def get_bolsas():
     """Fetch all records from the Bolsas table."""
     connection = connect_to_database()  # Use the connection function
@@ -97,3 +114,30 @@ def get_candidates_by_bolsa(bolsa_id, contrato_tipo):
     finally:
         if conn:
             conn.close()
+
+
+def get_bolsa_id_for_school(escola_nome):
+    """
+    Get the bolsa_id associated with a specific school name.
+
+    Parameters:
+    escola_nome (str): The name of the school.
+
+    Returns:
+    int: The bolsa_id associated with the school, or None if not found.
+    """
+    query = """
+        SELECT be.bolsa_id
+        FROM Escola e
+        JOIN Bolsa_Escola be ON e.id = be.escola_id
+        WHERE e.nome = %s
+    """
+    try:
+        result = execute_query(query, (escola_nome,))
+        if result:
+            return result[0]['bolsa_id']  # Assuming result is a list of dictionaries
+        else:
+            return None  # Return None if no bolsa_id found for the school
+    except Exception as e:
+        print(f"Error fetching bolsa_id for school {escola_nome}: {e}")
+        return None  # Return None on error
