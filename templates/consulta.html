@@ -184,13 +184,13 @@
 
             <div>
                 {% if current_page > 1 %}
-                    <a href="{{ url_for('metadatapage', page=current_page-1, search=search_query) }}">Previous</a>
+                    <a href="{{ url_for('metadatapage', page=current_page-1, search=search_query) }}">Anterior</a>
                 {% endif %}
                 
                 Página {{ current_page }} de {{ total_pages }}
                 
                 {% if current_page * per_page < total_count %}
-                    <a href="{{ url_for('metadatapage', page=current_page+1, search=search_query) }}">Next</a>
+                    <a href="{{ url_for('metadatapage', page=current_page+1, search=search_query) }}">Próxima</a>
                 {% endif %}
             </div>
         </div>

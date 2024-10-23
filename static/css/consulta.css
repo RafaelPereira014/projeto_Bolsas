@@ -18,7 +18,7 @@
     padding: 10px;
     border-radius: 4px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 100; /* Ensure it appears above other content */
+    z-index: 100; /* Enbtn-limpar-estadosre it appears above other content */
 }
 
 .sidebar ul li:hover .dropdown-menu {
@@ -333,6 +333,9 @@ select:focus {
 .pagination span {
     padding: 8px 16px;
     margin: 0 5px;
+}
+.btn-limpar-estados{
+    margin-top: 5px;
 }
 
 
