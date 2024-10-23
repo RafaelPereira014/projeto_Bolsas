@@ -7,8 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}">
     <title>Resultados da Pesquisa</title>
     <link rel="icon" href="{{ url_for('static', filename='images/GBI.png') }}" type="image/png"> <!-- Favicon -->
-
-    
 </head>
 <body>
     <div class="container">
@@ -43,8 +41,8 @@
         <div class="content">
             {% for escola_nome, candidatos in candidates_by_school.items() %}
                 <h2>Resultados da colocação {{date_today}} - {{ escola_nome }}</h2>
-                <h3>Número de vagas: {{ total_vagas }}</h3>
-                <p>Vagas com deficiência: {{ vagas_deficiencia }}</p>
+                <h3>Número de vagas normais: {{ initial_vagas_per_escola[escola_nome].vagas_normais }}</h3>
+                <p>Vagas com deficiência: {{ initial_vagas_per_escola[escola_nome].vagas_deficiencia_obrigatorias }}</p>
                 <p>Número de colocados: {{ candidatos|length }}</p>
                 <p>Tipo de contrato: {{ contrato_tipo }}</p>
 
@@ -91,7 +89,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Enviar Email para <span id="escolaName"></span></h2>
-            <form id="emailForm" class="email-form" action="/send_email" method="POST">
+            <div class="email-form">
                 <input type="hidden" id="escolaInput" name="escola" value="">
                 <label for="email">Email Destinatário:</label>
                 <input type="email" id="email" name="email" placeholder="Insira o email da escola" required>
@@ -99,8 +97,8 @@
                 <label for="emailMessage">Mensagem:</label>
                 <textarea id="emailMessage" name="message" placeholder="Escreva a sua mensagem aqui"></textarea>
 
-                <button type="submit">Enviar Email</button>
-            </form>
+                <button id="sendEmailBtn">Enviar Email</button>
+            </div>
         </div>
     </div>
 
@@ -110,46 +108,84 @@
         const escolaName = document.getElementById('escolaName');
         const escolaInput = document.getElementById('escolaInput');
         const emailMessage = document.getElementById('emailMessage');
-
+        const sendEmailBtn = document.getElementById('sendEmailBtn');
+    
         // Open the modal and populate the fields
         document.querySelectorAll('.email-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const escola = this.getAttribute('data-escola');
                 const candidates = JSON.parse(this.getAttribute('data-candidates'));
-
+    
                 // Fill in the school name and hidden input
                 escolaName.textContent = escola;
                 escolaInput.value = escola;
-
+    
                 // Clear the previous message content
                 emailMessage.value = '';
-
+    
                 // Dynamically build the message content with candidates' info
                 let messageContent = `Prezado(a) responsável da escola ${escola},\n\nSegue abaixo a lista de candidatos selecionados:\n\n`;
-
+    
                 candidates.forEach(candidate => {
                     messageContent += `ID: ${candidate.candidato_id}, Nome: ${candidate.nome}, Nota Final: ${candidate.nota_final}, Deficiência: ${candidate.deficiencia}, Prioridade da Escola: ${candidate.escola_priority_id}\n`;
                 });
-
+    
                 messageContent += `\nAtenciosamente,\n`;
                 emailMessage.value = messageContent;
-
+    
                 // Display the modal
                 modal.style.display = 'block';
             });
         });
-
+    
         // Close the modal
         document.querySelector('.close').addEventListener('click', function() {
             modal.style.display = 'none';
         });
-
+    
         // Close the modal if clicked outside of it
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         };
+    
+        // Handle email sending logic
+        sendEmailBtn.addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const message = emailMessage.value;
+            const escola = escolaInput.value;
+    
+            if (email && message) {
+                // AJAX request to send the email
+                fetch('/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        message: message,
+                        escola: escola
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Email enviado com sucesso!');
+                    } else {
+                        alert(`Erro ao enviar email: ${data.message}`);
+                    }
+                    modal.style.display = 'none';  // Close the modal after "sending"
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocorreu um erro ao enviar o email.');
+                });
+            } else {
+                alert('Por favor, insira o email e a mensagem antes de enviar.');
+            }
+        });
     </script>
 </body>
 </html>

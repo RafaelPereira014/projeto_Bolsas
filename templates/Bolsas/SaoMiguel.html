@@ -127,15 +127,36 @@
     </div>
     
     <!-- Confirmation Modal -->
-<div id="confirmationModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeConfirmationModal()">&times;</span>
-        <h2>Confirmação</h2>
-        <p>Tem certeza de que deseja mudar o estado para "Negado"? Esta ação é irreversivel.</p>
-        <button id="confirmButton">Confirmar</button>
-        <button onclick="closeConfirmationModal()">Cancelar</button>
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeConfirmationModal()">&times;</span>
+            <h2>Confirmação</h2>
+            <p>Tem certeza de que deseja mudar o estado para "Negado"? Esta ação é irreversível.</p>
+    
+            <form id="exclusaoForm">
+                <h3>Motivos para exclusão:</h3>
+                <div>
+                    <input type="checkbox" id="motivo1" name="motivos" value="Documentos incompletos">
+                    <label for="motivo1">Documentos incompletos</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="motivo2" name="motivos" value="Critérios não atendidos">
+                    <label for="motivo2">Critérios não atendidos</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="motivo4" name="motivos" value="Dados inconsistentes">
+                    <label for="motivo4">Dados inconsistentes</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="motivo5" name="motivos" value="Outros">
+                    <label for="motivo5">Outros</label>
+                </div>
+            </form>
+    
+            <button id="confirmButton" onclick="submitExclusao()">Confirmar</button>
+            <button onclick="closeConfirmationModal()">Cancelar</button>
+        </div>
     </div>
-</div>
     
 </body>
 <!-- Popup Modal -->
@@ -196,7 +217,7 @@
             return; // Exit the function to prevent the fetch call
         }
 
-        // Proceed with the status update
+        // Proceed with the status update if not 'negado'
         performStatusUpdate(userId, newStatus);
     }
 
@@ -215,6 +236,7 @@
         .then(data => {
             if (data.success) {
                 alert('Status atualizado com sucesso');
+                location.reload(); // Reload the page after a successful update
             } else {
                 alert('Erro ao atualizar o status');
             }
@@ -228,13 +250,18 @@
     // Close the confirmation modal
     function closeConfirmationModal() {
         document.getElementById('confirmationModal').style.display = 'none';
-        
     }
 
     // Confirm the update
     document.getElementById('confirmButton').addEventListener('click', function() {
         closeConfirmationModal(); // Hide modal
         performStatusUpdate(userIdToUpdate, newStatusToUpdate); // Perform the update
+    });
+
+    // Cancel the update and close the modal
+    document.getElementById('cancelButton').addEventListener('click', function() {
+        closeConfirmationModal(); // Hide modal
+        // Optionally reload the page or take other actions
     });
 </script>
 

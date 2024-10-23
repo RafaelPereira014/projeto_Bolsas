@@ -1,5 +1,6 @@
 from datetime import date
 from email.mime.text import MIMEText
+from mailbox import Message
 import os
 import os
 from flask import request, redirect, url_for, flash
@@ -11,6 +12,7 @@ from werkzeug.security import check_password_hash
 from config import db_config
 import mysql.connector
 from mysql.connector import Error
+from db_operations.notifications import send_email_on_selection
 from db_operations.selection.db_selection import *
 from db_operations.consulting.db_consulting import *
 from db_operations.user.db_user import *
@@ -342,7 +344,6 @@ def selection_page():
 @app.route('/submit_selection', methods=['POST'])
 def submit_selection():
     bolsas_ids = []  # Can select multiple bolsas
-    
     date_today = date.today()
 
     # Get the total number of candidates (numero de candidatos necessários)
@@ -366,6 +367,11 @@ def submit_selection():
     contrato_tipo = request.form['contrato_id']
     distribuicao = request.form['distribuicao']
 
+    initial_vagas_per_escola = {escola_nome: {
+        'vagas_normais': vagas_info['vagas_normais'],
+        'vagas_deficiencia_obrigatorias': vagas_info['vagas_deficiencia_obrigatorias']
+    } for escola_nome, vagas_info in vagas_per_escola.items()}
+
     # Log the vagas per escola in table format
     print("\nVacancies per School:")
     print(f"{'Escola':<30} {'Vagas Normais':<15} {'Vagas Deficiência':<20}")
@@ -377,7 +383,6 @@ def submit_selection():
     candidates_by_school = {}
 
     for bolsa_id in bolsas_ids:
-        # Query to retrieve and order candidates by nota_final DESC and escola_priority_id ASC
         query = """
             SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ue.escola_id, e.nome AS escola_nome
             FROM Users u
@@ -387,22 +392,19 @@ def submit_selection():
             LEFT JOIN colocados c ON u.id = c.user_id
             WHERE ub.Bolsa_id = %s
             AND (
-                (u.estado = 'livre')  -- Normal case where estado is 'livre'
-                OR (u.estado = 'aceite' AND c.contrato_id = 2)  -- Special case where estado is 'aceite' and contrato_id is 2
+                (u.estado = 'livre')  
+                OR (u.estado = 'aceite' AND c.contrato_id = 2)  
             )
             AND (
-                (%s = 1 AND (ub.contrato_id = 1 OR ub.contrato_id = 3))  -- Se contrato_tipo for 1, pegar 1 e 3
-                OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  -- Se contrato_tipo for 2, pegar 2 e 3
-                OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  -- Se contrato_tipo for 3, pegar todos
+                (%s = 1 AND (ub.contrato_id = 1 OR ub.contrato_id = 3))  
+                OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  
+                OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  
             )
             ORDER BY u.nota_final DESC, ue.escola_priority_id ASC;
         """
         candidates = execute_query(query, (bolsa_id, contrato_tipo, contrato_tipo, contrato_tipo))
-
-        # Sort candidates by nota_final and escola_priority_id
         candidates = sorted(candidates, key=lambda x: (-x['nota_final'], x['escola_priority_id']))
 
-        # Process candidates for the current bolsa
         for candidate in candidates:
             candidato_id = candidate['candidato_id']
             candidato_nome = candidate['nome']
@@ -411,47 +413,33 @@ def submit_selection():
             candidato_escola_nome = candidate['escola_nome']
             candidato_deficiencia = candidate['deficiencia']
 
-            # Check if the candidate can be allocated to their desired school
             if candidato_escola_nome in vagas_per_escola and candidato_id not in selected_candidates:
                 vagas_info = vagas_per_escola[candidato_escola_nome]
                 normal_vagas = vagas_info['vagas_normais']
                 vagas_deficiencia_obrigatorias = vagas_info['vagas_deficiencia_obrigatorias']
 
-                # Allocate candidate with deficiency if possible
                 if candidato_deficiencia == 'sim' and vagas_deficiencia_obrigatorias > 0:
                     candidates_by_school.setdefault(candidato_escola_nome, []).append(candidate)
                     selected_candidates.add(candidato_id)
                     vagas_per_escola[candidato_escola_nome]['vagas_deficiencia_obrigatorias'] -= 1
-
-                # Otherwise, allocate candidate for normal vacancy
                 elif normal_vagas > 0:
                     candidates_by_school.setdefault(candidato_escola_nome, []).append(candidate)
                     selected_candidates.add(candidato_id)
                     vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1
 
-    # Logic to handle leftover vacancies
     for escola_nome, vagas_info in vagas_per_escola.items():
         while vagas_info['vagas_deficiencia_obrigatorias'] > 0:
-            # Flag to track if a candidate has been allocated
             candidate_found = False
-            
             for candidate in candidates:
                 if candidate['candidato_id'] not in selected_candidates and candidate['escola_nome'] == escola_nome:
-                    if escola_nome not in candidates_by_school:
-                        candidates_by_school[escola_nome] = []
-                    candidates_by_school[escola_nome].append(candidate)
+                    candidates_by_school.setdefault(escola_nome, []).append(candidate)
                     selected_candidates.add(candidate['candidato_id'])
-
-                    # Reduce the number of remaining vagas for deficiência
                     vagas_info['vagas_deficiencia_obrigatorias'] -= 1
                     candidate_found = True
-                    break  # Exit the for-loop as we've found a candidate
-
-            # If no candidate was found, break out of the while loop
+                    break
             if not candidate_found:
                 break
 
-    # Log the selected candidates in table format
     print("\nSelected Candidates by School:")
     print(f"{'Escola':<30} {'Candidato ID':<15} {'Nome':<30} {'Nota':<10} {'Deficiência':<15}")
     print("-" * 100)
@@ -459,7 +447,15 @@ def submit_selection():
         for candidato in candidatos:
             print(f"{escola_nome:<30} {candidato['candidato_id']:<15} {candidato['nome']:<30} {candidato['nota_final']:<10} {candidato['deficiencia']:<15}")
 
-    # Output and update the database with the selected candidates
+    # # Sending emails to selected candidates
+    # for escola_nome, candidatos in candidates_by_school.items():
+    #     recipient_emails = ['rafaelpereira0808@gmail.com']
+    #     mensagem = f"Prezado(a) responsável da escola {escola_nome},\n\nSegue abaixo a lista de candidatos selecionados:\n\n"
+    #     for candidato in candidatos:
+    #         mensagem += f"{candidato['candidato_id']:<15}, Nome: {candidato['nome']:<30}, Nota Final: {candidato['nota_final']:<10} , Deficiência: {candidato['deficiencia']:<15}, Prioridade da Escola: {candidato['escola_priority_id']:<15}\n"
+    #     # Call the send_email_on_selection function
+    #     send_email_on_selection(sgc=escola_nome, recipient_emails=recipient_emails, mensagem=mensagem)
+
     for escola_nome, candidatos in candidates_by_school.items():
         for candidato in candidatos:
             update_query = """
@@ -474,40 +470,36 @@ def submit_selection():
             execute_update(update_query, (distribuicao, candidato['candidato_id']))
             execute_insert(insert_query2, (candidato['candidato_id'], bolsa_id, candidato['escola_nome'], contrato_tipo, candidato['escola_priority_id']))
 
-    return render_template('resultados.html', candidates_by_school=candidates_by_school, vagas_per_escola=vagas_per_escola, date_today=date_today, contrato_tipo=contrato_tipo, total_vagas=total_vagas)
+    return render_template('resultados.html', 
+                           candidates_by_school=candidates_by_school, 
+                           vagas_per_escola=vagas_per_escola, 
+                           initial_vagas_per_escola=initial_vagas_per_escola,
+                           date_today=date_today, 
+                           contrato_tipo=contrato_tipo, 
+                           total_vagas=total_vagas)
 
+@app.route('/send-email', methods=['POST'])
+def send_email_route():
+    data = request.json
+    recipient = data.get('email')
+    escola = data.get('escola')
+    sgc = data.get('sgc')
+    message = data.get('message')
 
-@app.route('/send_email', methods=['POST'])
-def send_email():
-    data = request.get_json()
-    email = data['email']
-    subject = data['subject']
-    message = data['message']
-    candidates = data['candidates']
-    
-    # Format the candidate details
-    candidate_details = "\n".join(
-        [f"Nome: {candidate['nome']}, Nota: {candidate['nota']}, Deficiência: {candidate['deficiencia']}, Prioridade: {candidate['prioridade']}" for candidate in candidates]
-    )
-    
-    # Complete message
-    full_message = f"{message}\n\nCandidatos:\n{candidate_details}"
-
-    # Send email (example with SMTP)
-    try:
-        msg = MIMEText(full_message)
-        msg['Subject'] = subject
-        msg['From'] = 'your_email@example.com'  # Your email address
-        msg['To'] = email
-
-        with smtplib.SMTP('smtp.example.com', 587) as server:
-            server.starttls()
-            server.login('your_email@example.com', 'your_password')  # Your email login credentials
-            server.send_message(msg)
-
-        return jsonify({"message": "Email sent successfully!"})
-    except Exception as e:
-        return jsonify({"message": "Failed to send email: " + str(e)}), 500
+    if recipient and message:
+        # Convert new lines to <br> for HTML email
+        html_message = message.replace('\n', '<br>')
+        
+        # Call the send_email_on_selection function with HTML message
+        response = send_email_on_selection(sgc, [recipient], html_message)
+        
+        # Ensure response is not None
+        if response:
+            return jsonify(response[0]), response[1]
+        else:
+            return jsonify({"status": "error", "message": "Failed to send email"}), 500
+    else:
+        return jsonify({"status": "error", "message": "Missing data"}), 400
     
 @app.route('/consulta')
 def metadatapage():
