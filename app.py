@@ -400,7 +400,7 @@ def submit_selection():
                 OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  
                 OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  
             )
-            ORDER BY u.nota_final DESC, ue.escola_priority_id ASC;
+            ORDER BY u.nota_final DESC;
         """
         candidates = execute_query(query, (bolsa_id, contrato_tipo, contrato_tipo, contrato_tipo))
         candidates = sorted(candidates, key=lambda x: (-x['nota_final'], x['escola_priority_id']))
