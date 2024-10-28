@@ -73,17 +73,17 @@
 <body>
     <div class="container">
         <header>
-            <h1>GBI - Gestão Bolsas Ilha</h1>
+            <h1>Plataforma de Gestão das Bolsas de Ilha - <span>Procedimento concursal centralizado SER</span></h1>
         </header>
 
         <div class="sidebar">
             <ul>
                 <li><a href="/mainpage">Página Principal</a></li>
-                <li><a href="/selectionpage">Seleção de Candidatos</a></li>
-                <li><a href="/consulta">Página de Dados</a></li>
+                <li><a href="/selectionpage">Inserção de vagas</a></li>
+                <li><a href="/consulta">Lista única Ordenação Final</a></li>
             </ul>
-            <button class="toggle-button">Bolsas</button>
-            <ul class="bolsas-menu">
+            <button class="toggle-button">Bolsas de Ilha</button>
+            <ul class="bolsas-menu" style="display:none;">
                 <li><a href="/Bolsas/SaoMiguel">Bolsa de Ilha São Miguel</a></li>
                 <li><a href="/Bolsas/Terceira">Bolsa de Ilha Terceira</a></li>
                 <li><a href="/Bolsas/SantaMaria">Bolsa de Ilha Santa Maria</a></li>
@@ -102,7 +102,7 @@
         </div>
 
         <div class="content">
-            <h2>Tabela geral</h2>
+            <h2>Lista única de ordenação final</h2>
             
             <!-- Filter buttons for estados -->
             <div class="filter-buttons">
@@ -128,8 +128,8 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nome</th>
-                        <th>Nota Final</th>
+                        <th>Nome Candidato</th>
+                        <th>Classificação Final</th>
                         <th><a href="{{ url_for('bolsa_sao_miguel') }}">Bolsa de Ilha de São Miguel</a></th>
                         <th><a href="{{ url_for('bolsa_terceira') }}">Bolsa de Ilha Terceira</a></th>
                         <th><a href="{{ url_for('bolsa_santa_maria') }}">Bolsa de Ilha Santa Maria</a></th>

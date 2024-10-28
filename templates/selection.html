@@ -7,21 +7,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/selection.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='images/GBI.png') }}" type="image/png"> <!-- Favicon -->
 
-    <title>Seleção de Candidatos</title>
+    <title>Introdução de vagas</title>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Seleção de Candidatos</h1>
+            <h1>Introdução de vagas</h1>
         </header>
 
         <div class="sidebar">
             <ul>
                 <li><a href="/mainpage">Página Principal</a></li>
-                <li><a href="/selectionpage">Seleção de Candidatos</a></li>
-                <li><a href="/consulta">Página de Dados</a></li>
+                <li><a href="/selectionpage">Inserção de vagas</a></li>
+                <li><a href="/consulta">Lista única Ordenação Final</a></li>
             </ul>
-            <button class="toggle-button">Bolsas</button>
+            <button class="toggle-button">Bolsas de Ilha</button>
             <ul class="bolsas-menu" style="display:none;">
                 <li><a href="/Bolsas/SaoMiguel">Bolsa de Ilha São Miguel</a></li>
                 <li><a href="/Bolsas/Terceira">Bolsa de Ilha Terceira</a></li>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="content">
-            <h2>Formulário para Seleção</h2>
+            <h2>Formulário de inserção de vagas</h2>
             <form id="selectionForm" action="/submit_selection" method="POST" class="form-horizontal" novalidate>
                 <div class="form-group">
                     <label for="distribuicao">Distribuição SGC:</label>
@@ -49,12 +49,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="numero">Número de Candidatos Necessários:</label>
+                    <label for="numero">Número de vagas:</label>
                     <input type="number" id="numero" name="numero" placeholder="Insira o número de candidatos" required oninput="calculateVagas()">
                 </div>
 
                 <div class="form-group">
-                    <label for="ilha">Ilha (Bolsa):</label>
+                    <label for="ilha">Bolsa de Ilha:</label>
                     <select id="ilha" name="ilha" required>
                         <option value="">Selecione a bolsa/ilha</option>
                         {% for bolsa in bolsas %}
@@ -64,16 +64,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="escola">Escolas:</label>
+                    <label for="escola">Unidade Orgânica:</label>
                     <select id="escola" name="escola" required>
                         <option value="">Selecione a escola</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="contrato">Tipo de Contrato:</label>
+                    <label for="contrato">Tipo de vínculo:</label>
                     <select id="contrato" name="contrato_id" required>
-                        <option value="">Selecione o tipo de contrato</option>
+                        <option value="">Selecione o tipo de vínculo</option>
                         <option value="1">CTFP por tempo indeterminado</option>
                         <option value="2">CTFP a termo resolutivo</option>
                     </select>
@@ -81,29 +81,29 @@
 
                 <!-- Fields to display calculated values -->
                 <div class="form-group">
-                    <label for="vagas_normais">Vagas Normais:</label>
+                    <label for="vagas_normais">Vagas:</label>
                     <input type="number" id="vagas_normais" name="vagas_normais" readonly>
                 </div>
 
                 <div class="form-group">
-                    <label for="vagas_deficiencia">Cota para Deficiência:</label>
+                    <label for="vagas_deficiencia">Número de lugares a preencher por pessoas com deficiência:</label>
                     <input type="number" id="vagas_deficiencia" name="vagas_deficiencia" readonly>
                 </div>
                 
 
                 <div class="form-group">
-                    <button type="button" id="addSchoolBtn">Adicionar Escola</button>
+                    <button type="button" id="addSchoolBtn">Submeter vagas</button>
                 </div>
 
                 <div class="selected-schools">
-                    <h3>Escolas Selecionadas</h3>
+                    <h3>Vagas introduzidas</h3>
                     <table id="selectedSchoolsTable">
                         <thead>
                             <tr>
-                                <th>Nome da Escola</th>
-                                <th>Vagas Normais</th>
-                                <th>Cota para deficiencia</th>
-                                <th>Tipo de Contrato</th>
+                                <th>Unigade Orgânica</th>
+                                <th>Número de vagas</th>
+                                <th>Lugares cota</th>
+                                <th>Tipo de vínculo</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
