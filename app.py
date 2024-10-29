@@ -355,7 +355,7 @@ def submit_selection():
 
     # Process each escola_data to capture vagas_normais and vagas_deficiencia
     for escola_data in escolas_data:
-        # Assuming escola_data is formatted as 'escola_nome:vagas_normais:vagas_deficiencia'
+        # Assuming escola_data is formatted as 'escola_nome:vagas_normais:vagas_deficiencia:bolsa_id'
         escola_nome, vagas_normais, vagas_deficiencia, bolsa_id = escola_data.split(':')
         vagas_per_escola[escola_nome] = {
             'vagas_normais': int(vagas_normais),
@@ -372,7 +372,7 @@ def submit_selection():
         'vagas_deficiencia_obrigatorias': vagas_info['vagas_deficiencia_obrigatorias']
     } for escola_nome, vagas_info in vagas_per_escola.items()}
 
-    # Log the vagas per escola in table format
+    # Log the vacancies per school
     print("\nVacancies per School:")
     print(f"{'Escola':<30} {'Vagas Normais':<15} {'Vagas Deficiência':<20}")
     print("-" * 65)
@@ -381,7 +381,9 @@ def submit_selection():
 
     selected_candidates = set()
     candidates_by_school = {}
+    all_candidates = []
 
+    # Aggregate all candidates across all bolsas_ids
     for bolsa_id in bolsas_ids:
         query = """
             SELECT u.id AS candidato_id, u.nome, u.nota_final, u.deficiencia, ue.escola_priority_id, ue.escola_id, e.nome AS escola_nome
@@ -400,46 +402,37 @@ def submit_selection():
                 OR (%s = 2 AND (ub.contrato_id = 2 OR ub.contrato_id = 3))  
                 OR (%s = 3 AND (ub.contrato_id = 1 OR ub.contrato_id = 2 OR ub.contrato_id = 3))  
             )
-            ORDER BY u.nota_final DESC;
         """
         candidates = execute_query(query, (bolsa_id, contrato_tipo, contrato_tipo, contrato_tipo))
-        candidates = sorted(candidates, key=lambda x: (-x['nota_final'], x['escola_priority_id']))
+        all_candidates.extend(candidates)
 
-        for candidate in candidates:
-            candidato_id = candidate['candidato_id']
-            candidato_nome = candidate['nome']
-            candidato_nota = candidate['nota_final']
-            candidato_priority = candidate['escola_priority_id']
-            candidato_escola_nome = candidate['escola_nome']
-            candidato_deficiencia = candidate['deficiencia']
+    # Sort all candidates by nota_final (DESC) and escola_priority_id (ASC)
+    all_candidates = sorted(all_candidates, key=lambda x: (-x['nota_final'], x['escola_priority_id']))
 
-            if candidato_escola_nome in vagas_per_escola and candidato_id not in selected_candidates:
-                vagas_info = vagas_per_escola[candidato_escola_nome]
-                normal_vagas = vagas_info['vagas_normais']
-                vagas_deficiencia_obrigatorias = vagas_info['vagas_deficiencia_obrigatorias']
+    # Allocate candidates to schools based on vacancies
+    for candidate in all_candidates:
+        candidato_id = candidate['candidato_id']
+        candidato_nome = candidate['nome']
+        candidato_nota = candidate['nota_final']
+        candidato_priority = candidate['escola_priority_id']
+        candidato_escola_nome = candidate['escola_nome']
+        candidato_deficiencia = candidate['deficiencia']
 
-                if candidato_deficiencia == 'sim' and vagas_deficiencia_obrigatorias > 0:
-                    candidates_by_school.setdefault(candidato_escola_nome, []).append(candidate)
-                    selected_candidates.add(candidato_id)
-                    vagas_per_escola[candidato_escola_nome]['vagas_deficiencia_obrigatorias'] -= 1
-                elif normal_vagas > 0:
-                    candidates_by_school.setdefault(candidato_escola_nome, []).append(candidate)
-                    selected_candidates.add(candidato_id)
-                    vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1
+        if candidato_escola_nome in vagas_per_escola and candidato_id not in selected_candidates:
+            vagas_info = vagas_per_escola[candidato_escola_nome]
+            normal_vagas = vagas_info['vagas_normais']
+            vagas_deficiencia_obrigatorias = vagas_info['vagas_deficiencia_obrigatorias']
 
-    for escola_nome, vagas_info in vagas_per_escola.items():
-        while vagas_info['vagas_deficiencia_obrigatorias'] > 0:
-            candidate_found = False
-            for candidate in candidates:
-                if candidate['candidato_id'] not in selected_candidates and candidate['escola_nome'] == escola_nome:
-                    candidates_by_school.setdefault(escola_nome, []).append(candidate)
-                    selected_candidates.add(candidate['candidato_id'])
-                    vagas_info['vagas_deficiencia_obrigatorias'] -= 1
-                    candidate_found = True
-                    break
-            if not candidate_found:
-                break
+            if candidato_deficiencia == 'sim' and vagas_deficiencia_obrigatorias > 0:
+                candidates_by_school.setdefault(candidato_escola_nome, []).append(candidate)
+                selected_candidates.add(candidato_id)
+                vagas_per_escola[candidato_escola_nome]['vagas_deficiencia_obrigatorias'] -= 1
+            elif normal_vagas > 0:
+                candidates_by_school.setdefault(candidato_escola_nome, []).append(candidate)
+                selected_candidates.add(candidato_id)
+                vagas_per_escola[candidato_escola_nome]['vagas_normais'] -= 1
 
+    # Log selected candidates by school
     print("\nSelected Candidates by School:")
     print(f"{'Escola':<30} {'Candidato ID':<15} {'Nome':<30} {'Nota':<10} {'Deficiência':<15}")
     print("-" * 100)
@@ -447,15 +440,7 @@ def submit_selection():
         for candidato in candidatos:
             print(f"{escola_nome:<30} {candidato['candidato_id']:<15} {candidato['nome']:<30} {candidato['nota_final']:<10} {candidato['deficiencia']:<15}")
 
-    # # Sending emails to selected candidates
-    # for escola_nome, candidatos in candidates_by_school.items():
-    #     recipient_emails = ['rafaelpereira0808@gmail.com']
-    #     mensagem = f"Prezado(a) responsável da escola {escola_nome},\n\nSegue abaixo a lista de candidatos selecionados:\n\n"
-    #     for candidato in candidatos:
-    #         mensagem += f"{candidato['candidato_id']:<15}, Nome: {candidato['nome']:<30}, Nota Final: {candidato['nota_final']:<10} , Deficiência: {candidato['deficiencia']:<15}, Prioridade da Escola: {candidato['escola_priority_id']:<15}\n"
-    #     # Call the send_email_on_selection function
-    #     send_email_on_selection(sgc=escola_nome, recipient_emails=recipient_emails, mensagem=mensagem)
-
+    # Update user status and insert selected candidates into 'Colocados' table
     for escola_nome, candidatos in candidates_by_school.items():
         for candidato in candidatos:
             update_query = """

@@ -68,6 +68,10 @@
         .filter-buttons button.active {
             background-color: #0056b3; /* Active button styling */
         }
+        /* Gray background for rows with estado 'negado' */
+        .negado-row {
+            background-color: #d3d3d3; /* Light gray color */
+        }
     </style>
 </head>
 <body>
@@ -110,6 +114,7 @@
                 <button data-estado="livre" class="filter-button">Livre</button>
                 <button data-estado="a aguardar resposta" class="filter-button">A Aguardar Resposta</button>
                 <button data-estado="aceite" class="filter-button">Aceite</button>
+                <button data-estado="negado" class="filter-button">Excluído</button>
             </div>
 
             <!-- Search bar -->
@@ -145,7 +150,7 @@
                 <tbody id="table-body">
                     {% if scores %}
                         {% for score in scores %}
-                        <tr data-estado="{{ score.estado }}">
+                        <tr data-estado="{{ score.estado }} " >
                             <td>{{ loop.index + (current_page - 1) * per_page }}</td>
                             <td><a href="{{ url_for('user_profile', user_id=score.id) }}">{{ score.nome }}</a></td>
                             <td>{{ score.nota_final }}</td>
@@ -236,9 +241,14 @@
                 } else {
                     row.style.display = 'none';
                 }
+                if (estado === 'negado') {
+                    row.classList.add('negado-row');
+                }
             });
         });
     });
+    
 </script>
+    
 
 </html>
