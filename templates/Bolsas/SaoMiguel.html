@@ -73,8 +73,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome candidato</th>
-                        <th>Avaliação Curricular</th>
                         <th>Prova de Conhecimentos</th>
+                        <th>Avaliação Curricular</th>
                         <th>Classificação final</th>
                         <th>Bolsa de Ilha Terceira</th>
                         <th>CTFP</th>
@@ -86,8 +86,9 @@
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td><a href="{{ url_for('user_profile', user_id=user.id) }}">{{ user.nome }}</a></td>
-                        <td>{{ user.avaliacao_curricular }}</td>
                         <td>{{ user.prova_de_conhecimentos }}</td>
+                        <td>{{ user.avaliacao_curricular }}</td>
+
                         <td>{{ user.nota_final }}</td>
                         <td>
                             <button onclick="showEscolasPopup({{ user.id }}, '{{ user.nome }}')">Ver Escolas</button>
