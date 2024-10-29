@@ -36,7 +36,7 @@ header h1 {
 
 /* Sidebar */
 .sidebar {
-    width: 240px;
+    width: 220px;
     background-color: #343a40; /* Dark gray for sidebar */
     padding: 20px;
     position: fixed;
@@ -104,7 +104,7 @@ header h1 {
 /* Content */
 .content {
     margin-left: 260px; /* Adjust to sidebar width */
-    padding: 100px 40px 40px;
+    padding: 100px 40px 40px ;
     flex: 1;
     background-color: #ffffff; /* White content area */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -154,39 +154,6 @@ tr:hover td {
     transition: background-color 0.3s ease;
 }
 
-/* Footer */
-footer {
-    background: linear-gradient(135deg, #343a40 0%, #495057 100%); /* Gradient background */
-    color: #f8f9fa;
-    padding: 25px; /* Increased padding */
-    text-align: center;
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    z-index: 100;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2); /* Deeper shadow */
-}
-
-footer p {
-    margin: 0;
-    font-size: 1.1rem; /* Slightly larger text */
-}
-
-footer a {
-    color: #007bff; /* Bright blue for links */
-    text-decoration: none;
-    font-weight: bold; /* Bolder links */
-    transition: color 0.3s ease, text-shadow 0.3s ease; /* Added text-shadow for hover */
-}
-
-footer a:hover {
-    color: #0056b3; /* Darker blue for hover */
-    text-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle glow effect */
-}
-
-body {
-    padding-bottom: 80px; /* Increased space for footer */
-}
 
 
 

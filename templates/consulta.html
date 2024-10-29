@@ -182,7 +182,7 @@
                 </tbody>
             </table>
 
-            <div>
+            <div class="pagination">
                 {% if current_page > 1 %}
                     <a href="{{ url_for('metadatapage', page=current_page-1, search=search_query) }}">Anterior</a>
                 {% endif %}
@@ -195,9 +195,7 @@
             </div>
         </div>
 
-        <footer>
-            <p>Footer content here.</p>
-        </footer>
+        
     </div>
 </body>
 
