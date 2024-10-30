@@ -449,7 +449,7 @@ def submit_selection():
             WHERE id = %s
             """
             insert_query2 = """
-                INSERT INTO Colocados (user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id, placement_date)
+                INSERT INTO colocados (user_id, bolsa_id, escola_nome, contrato_id, escola_priority_id, placement_date)
                 VALUES (%s, %s, %s, %s, %s, CURDATE())
             """
             execute_update(update_query, (distribuicao, candidato['candidato_id']))
